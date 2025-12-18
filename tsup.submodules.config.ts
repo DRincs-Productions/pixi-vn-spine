@@ -13,6 +13,7 @@ export default defineConfig({
     bundle: true,
     skipNodeModulesBundle: false,
     external: ["@drincs/pixi-vn", "pixi.js"],
+    noExternal: ["@esotericsoftware/spine-pixi-v8"],
     outExtension({ format }) {
         return {
             js: format === "esm" ? ".mjs" : ".cjs",
