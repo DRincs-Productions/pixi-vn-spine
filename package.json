@@ -11,7 +11,9 @@
   ],
   "scripts": {
     "build:post": "node scripts/replace-pixi.js",
-    "build": "tsup --config tsup.config.ts && npm run build:post",
+    "build:submodules": "tsup --config tsup.submodules.config.ts",
+    "build:index": "tsup --config tsup.config.ts",
+    "build": "npm run build:submodules && npm run build:index && npm run build:post",
     "test": "vitest"
   },
   "exports": {
@@ -20,10 +22,33 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs",
       "default": "./dist/index.mjs"
+    },
+    "./core": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.cjs",
+      "default": "./dist/core.mjs"
     }
   },
+  "typesVersions": {
+    "*": {
+      "core": [
+        "./dist/core.d.ts"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DRincs-Productions/pixi-vn-spine.git"
+  },
+  "author": "DRincs-Productions",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/DRincs-Productions/pixi-vn-spine/issues"
+  },
+  "homepage": "https://pixi-vn.web.app/start/canvas-spine2d",
+  "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "devDependencies": {
-    "@esotericsoftware/spine-pixi-v8": "^4.2.96",
     "@types/crypto-js": "^4.2.2",
     "crypto-js": "^4.2.0",
     "jsdom": "^27.0.0",
@@ -45,6 +70,7 @@
     "visual-novel"
   ],
   "dependencies": {
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@esotericsoftware/spine-pixi-v8": "^4.2.96"
   }
 }
