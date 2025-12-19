@@ -48,6 +48,28 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBase
     get memory(): SpineBaseMemory {
         return {
             pixivnId: CANVAS_SPINE_ID,
+            accessible: this.accessible,
+            x: this.x,
+            y: this.y,
+            scale: {
+                x: this.scale.x,
+                y: this.scale.y,
+            },
+            rotation: this.rotation,
+            alpha: this.alpha,
+            visible: this.visible,
+            autoUpdate: this.autoUpdate,
+            accessibleChildren: this.accessibleChildren,
+            accessibleHint: this.accessibleHint,
+            accessiblePointerEvents: this.accessiblePointerEvents,
+            accessibleText: this.accessibleText,
+            accessibleTitle: this.accessibleTitle,
+            accessibleType: this.accessibleType,
+            angle: this.angle,
+            blendMode: this.blendMode,
+            cullable: this.cullable,
+            cullableChildren: this.cullableChildren,
+            cursor: this.cursor,
         };
     }
     set memory(_value: SpineBaseMemory) {}
