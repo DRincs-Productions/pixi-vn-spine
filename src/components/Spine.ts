@@ -70,6 +70,12 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBase
             cullable: this.cullable,
             cullableChildren: this.cullableChildren,
             cursor: this.cursor,
+            eventMode: this.eventMode,
+            height: this.height,
+            interactive: this.interactive,
+            isRenderGroup: this.isRenderGroup,
+            label: this.label,
+            interactiveChildren: this.interactiveChildren,
         };
     }
     set memory(_value: SpineBaseMemory) {}

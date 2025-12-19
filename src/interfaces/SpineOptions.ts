@@ -1,6 +1,30 @@
 import { SkeletonData as CoreSkeletonData, SpineOptions as CoreSpineOptions } from "@drincs/pixi-vn-spine/core";
 export default interface SpineOptions
-    extends Omit<CoreSpineOptions, "skeletonData" | "cacheAsTexture" | "boundsArea" | "boundsProvider" | "cullArea"> {
+    extends Omit<
+        CoreSpineOptions,
+        | "skeletonData"
+        | "cacheAsTexture"
+        | "boundsArea"
+        | "boundsProvider"
+        | "cullArea"
+        | "darkTint"
+        | "hitArea"
+        | "mask"
+        | "onclick"
+        | "onglobalmousemove"
+        | "onglobalpointermove"
+        | "onmousemove"
+        | "onpointermove"
+        | "onglobaltouchmove"
+        | "ontouchmove"
+        | "onmousedown"
+        | "onmouseenter"
+        | "onmouseleave"
+        | "onmouseout"
+        | "onmouseover"
+        | "onmouseup"
+        | "onmouseupoutside"
+    > {
     skeletonData?: SkeletonData;
 }
 export interface SkeletonData
