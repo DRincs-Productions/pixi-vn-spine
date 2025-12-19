@@ -1,12 +1,14 @@
 import { CanvasBaseItem, CanvasBaseItemMemory, RegisteredCanvasComponents } from "@drincs/pixi-vn";
-import { Spine as CoreSpine, SpineOptions } from "@drincs/pixi-vn-spine/core";
+import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
+import { SpineBaseMemory, SpineOptions } from "../interfaces";
 
 const CANVAS_SPINE_ID = "Spine";
 
-export default class Spine extends CoreSpine implements CanvasBaseItem<CanvasBaseItemMemory> {
-    constructor(
-        options: SpineOptions = {
-            // | SkeletonData
+export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBaseMemory> {
+    constructor(options: SpineOptions = {}) {
+        const { skeletonData, ...rest } = options;
+        super({
+            ...rest,
             skeletonData: {
                 animations: [],
                 bones: [],
@@ -38,18 +40,17 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<CanvasBas
                 findSkin: () => null,
                 findSlot: () => null,
                 findTransformConstraint: () => null,
+                ...skeletonData,
             },
-        }
-    ) {
-        super(options);
+        });
     }
     pixivnId: string = CANVAS_SPINE_ID;
-    get memory(): CanvasBaseItemMemory {
+    get memory(): SpineBaseMemory {
         return {
             pixivnId: CANVAS_SPINE_ID,
         };
     }
-    set memory(_value: CanvasBaseItemMemory) {}
+    set memory(_value: SpineBaseMemory) {}
     setMemory(_value: CanvasBaseItemMemory): Promise<void> | void {
         throw new Error("Method not implemented.");
     }
