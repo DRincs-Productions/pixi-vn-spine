@@ -76,6 +76,41 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBase
             isRenderGroup: this.isRenderGroup,
             label: this.label,
             interactiveChildren: this.interactiveChildren,
+            pivot: {
+                x: this.pivot.x,
+                y: this.pivot.y,
+            },
+            origin: {
+                x: this.origin.x,
+                y: this.origin.y,
+            },
+            skew: {
+                x: this.skew.x,
+                y: this.skew.y,
+            },
+            sortableChildren: this.sortableChildren,
+            width: this.width,
+            zIndex: this.zIndex,
+            position: {
+                x: this.position.x,
+                y: this.position.y,
+            },
+            renderable: this.renderable,
+            sortDirty: this.sortDirty,
+            tabIndex: this.tabIndex,
+            tint: this.tint,
+            skeletonData: {
+                audioPath: this.skeleton.data.audioPath,
+                imagesPath: this.skeleton.data.imagesPath,
+                version: this.skeleton.data.version,
+                hash: this.skeleton.data.hash,
+                fps: this.skeleton.data.fps,
+                width: this.skeleton.data.width,
+                height: this.skeleton.data.height,
+                x: this.skeleton.data.x,
+                y: this.skeleton.data.y,
+                referenceScale: this.skeleton.data.referenceScale,
+            },
         };
     }
     set memory(_value: SpineBaseMemory) {}
