@@ -5,18 +5,19 @@ export default defineConfig({
     entry: {
         core: "src/core/index.ts",
     },
-    format: ["cjs", "esm"],
+    format: ["esm"],
     dts: true,
     treeshake: true,
-    clean: false,
+    clean: true,
     minify: true,
     bundle: true,
     skipNodeModulesBundle: false,
-    external: ["@drincs/pixi-vn", "pixi.js"],
+    external: ["@drincs/pixi-vn", "@drincs/pixi-vn/pixi.js"],
     noExternal: ["@esotericsoftware/spine-pixi-v8"],
-    outExtension({ format }) {
-        return {
-            js: format === "esm" ? ".mjs" : ".cjs",
+    esbuildOptions(options) {
+        options.alias = {
+            ...options.alias,
+            "pixi.js": "@drincs/pixi-vn/pixi.js",
         };
     },
 });
