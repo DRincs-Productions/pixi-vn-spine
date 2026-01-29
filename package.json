@@ -1,7 +1,7 @@
 {
   "name": "@drincs/pixi-vn-spine",
   "description": "Spine 2D integration for Pixi'VN",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -10,9 +10,10 @@
     "dist"
   ],
   "scripts": {
+    "build:post": "node scripts/replace-pixi.js",
     "build:submodules": "tsup --config tsup.submodules.config.ts",
     "build:index": "tsup --config tsup.config.ts",
-    "build": "npm run build:submodules && npm run build:index",
+    "build": "npm run build:submodules && npm run build:post && npm run build:index",
     "test": "vitest"
   },
   "exports": {

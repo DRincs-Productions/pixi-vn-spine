@@ -14,15 +14,9 @@ function walk(dir) {
         } else if (/\.(js|mjs|cjs|d\.ts)$/.test(file)) {
             let content = fs.readFileSync(fullPath, "utf8");
 
-            const replacedRequire = content.replace(
-                /require\(\s*(['"])pixi\.js(\/[^'\"]*)?\1\s*\)/g,
-                (match, quote, subpath = "") => `require(${quote}@drincs/pixi-vn/pixi.js${subpath}${quote})`,
-            );
-
-            // replace `from "pixi.js"`, `import "pixi.js"` and similar ESM patterns
-            const replaced = replacedRequire.replace(
-                /(\bfrom\s+|\bimport\s+)(['"])pixi\.js(\/[^'\"]*)?\2/g,
-                (match, prefix, quote, subpath = "") => `${prefix}${quote}@drincs/pixi-vn/pixi.js${subpath}${quote}`,
+            const replaced = content.replace(
+                /(['"])pixi\.js(\/[^'"]*)?\1/g,
+                (_, quote, subpath = "") => `${quote}@drincs/pixi-vn/pixi.js${subpath}${quote}`,
             );
 
             if (replaced !== content) {
