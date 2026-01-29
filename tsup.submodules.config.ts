@@ -12,7 +12,7 @@ export default defineConfig({
     minify: true,
     bundle: true,
     skipNodeModulesBundle: false,
-    external: ["@drincs/pixi-vn", "@drincs/pixi-vn/pixi.js", "pixi.js"],
+    external: ["pixi.js", "@esotericsoftware/spine-core"],
     noExternal: ["@esotericsoftware/spine-pixi-v8"],
     esbuildOptions(options) {
         options.alias = {

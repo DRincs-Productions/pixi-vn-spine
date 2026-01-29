@@ -1,7 +1,7 @@
 {
   "name": "@drincs/pixi-vn-spine",
   "description": "Spine 2D integration for Pixi'VN",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -49,6 +49,7 @@
   "homepage": "https://pixi-vn.web.app/start/canvas-spine2d",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "devDependencies": {
+    "@esotericsoftware/spine-pixi-v8": "4.2.100",
     "@types/crypto-js": "^4.2.2",
     "crypto-js": "^4.2.0",
     "jsdom": "^27.0.0",
@@ -57,7 +58,8 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.4.0"
+    "@drincs/pixi-vn": ">=1.4.0",
+    "@esotericsoftware/spine-core": "^4.2.0"
   },
   "keywords": [
     "game",
@@ -69,7 +71,7 @@
     "visual-novel"
   ],
   "dependencies": {
-    "vitest": "^4.0.17",
-    "@esotericsoftware/spine-pixi-v8": "4.2.98"
+    "@esotericsoftware/spine-core": "^4.2.0",
+    "vitest": "^4.0.17"
   }
 }
