@@ -1,4 +1,55 @@
-import { CanvasBaseItemMemory } from "@drincs/pixi-vn";
+import { AsyncLoadExtensionProps, CanvasBaseItemMemory } from "@drincs/pixi-vn";
+import { SpineOptions as SpineOptionsCore } from "@drincs/pixi-vn-spine/core";
 import SpineOptions from "./SpineOptions";
-
-export default interface SpineBaseMemory extends SpineOptions, CanvasBaseItemMemory {}
+interface MemoryCore extends Omit<
+    SpineOptionsCore,
+    | "skeletonData"
+    | "cacheAsTexture"
+    | "boundsArea"
+    | "boundsProvider"
+    | "cullArea"
+    | "darkTint"
+    | "hitArea"
+    | "mask"
+    | "onclick"
+    | "onglobalmousemove"
+    | "onglobalpointermove"
+    | "onmousemove"
+    | "onpointermove"
+    | "onglobaltouchmove"
+    | "ontouchmove"
+    | "onmousedown"
+    | "onmouseenter"
+    | "onmouseleave"
+    | "onmouseout"
+    | "onmouseover"
+    | "onmouseup"
+    | "onmouseupoutside"
+    | "onpointercancel"
+    | "onpointerenter"
+    | "onpointerdown"
+    | "onpointerleave"
+    | "onpointerout"
+    | "onpointerover"
+    | "onpointertap"
+    | "onpointerup"
+    | "onrightdown"
+    | "onrightup"
+    | "ontouchcancel"
+    | "onRender"
+    | "onpointerupoutside"
+    | "onrightclick"
+    | "onrightupoutside"
+    | "ontap"
+    | "ontouchendoutside"
+    | "ontouchend"
+    | "ontouchstart"
+    | "onwheel"
+    | "children"
+    | "filters"
+    | "parent"
+    | "setMask"
+    | "skeletonData"
+> {}
+export default interface SpineBaseMemory
+    extends MemoryCore, CanvasBaseItemMemory, Omit<SpineOptions, "scale">, AsyncLoadExtensionProps {}
