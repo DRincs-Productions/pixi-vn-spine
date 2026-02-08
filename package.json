@@ -1,7 +1,7 @@
 {
   "name": "@drincs/pixi-vn-spine",
   "description": "Spine 2D integration for Pixi'VN",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
