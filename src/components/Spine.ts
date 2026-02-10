@@ -1,11 +1,36 @@
-import { AsyncLoadExtension, CanvasBaseItem, RegisteredCanvasComponents } from "@drincs/pixi-vn";
+import { Assets, CanvasBaseItem, RegisteredCanvasComponents, setMemoryContainer } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
-import { SpineBaseMemory, SpineOptions } from "../interfaces";
+import { SpineMemory, SpineOptions } from "../interfaces";
 
 const CANVAS_SPINE_ID = "Spine";
 
-export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBaseMemory>, AsyncLoadExtension {
-    constructor(options: SpineOptions) {
+/**
+ * Spine component for Pixi.js, used to display Spine components.
+ * @example
+ * ```ts
+ * import { Assets, canvas } from "@drincs/pixi-vn";
+ * import { Spine } from "@drincs/pixi-vn-spine";
+ *
+ * await Assets.load([
+ *     {
+ *         alias: "spineSkeleton",
+ *         src: "https://raw.githubusercontent.com/pixijs/spine-v8/main/examples/assets/spineboy-pro.skel",
+ *     },
+ *     {
+ *         alias: "spineAtlas",
+ *         src: "https://raw.githubusercontent.com/pixijs/spine-v8/main/examples/assets/spineboy-pma.atlas",
+ *     },
+ * ]);
+ *
+ * const spine = new Spine({ atlas: "spineAtlas", skeleton: "spineSkeleton" });
+ * spine.x = canvas.width / 2;
+ * spine.y = canvas.height;
+ *
+ * canvas.add("spine", spine);
+ * ```
+ */
+export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemory> {
+    constructor(options: Omit<SpineOptions, "parent">) {
         const spineCore = CoreSpine.from(options);
         const { skeleton, parent, ...props } = spineCore;
         super({
@@ -15,11 +40,12 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBase
         this.skeletonAlias = options.skeleton;
         this.atlasAlias = options.atlas;
         this.darkTintCore = options.darkTint;
-        this.assetsAliases = [options.skeleton, options.atlas];
     }
-    readonly assetsAliases: string[];
     readonly pixivnId: string = CANVAS_SPINE_ID;
-    get memory(): SpineBaseMemory {
+    readonly skeletonAlias: SpineOptions["skeleton"];
+    readonly atlasAlias: SpineOptions["atlas"];
+    readonly darkTintCore: SpineOptions["darkTint"];
+    get memory(): SpineMemory {
         return {
             pixivnId: CANVAS_SPINE_ID,
             // container properties
@@ -78,76 +104,52 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineBase
             skeleton: this.skeletonAlias,
             atlas: this.atlasAlias,
             darkTint: this.darkTintCore,
-            assetsData: this.assetsAliases.map((alias) => ({
-                alias,
-                url: alias,
-            })),
         };
     }
-    set memory(memory: SpineBaseMemory) {
-        // container properties
-        memory.isRenderGroup !== undefined && (this.isRenderGroup = memory.isRenderGroup);
-        memory.blendMode !== undefined && (this.blendMode = memory.blendMode);
-        memory.tint !== undefined && (this.tint = memory.tint);
-        memory.alpha !== undefined && (this.alpha = memory.alpha);
-        memory.angle !== undefined && (this.angle = memory.angle);
-        memory.renderable !== undefined && (this.renderable = memory.renderable);
-        memory.rotation !== undefined && (this.rotation = memory.rotation);
-        if (memory.scale !== undefined) {
-            if (typeof memory.scale === "number") {
-                this.scale.set(memory.scale, memory.scale);
-            } else {
-                this.scale.set(memory.scale.x, memory.scale.y);
-            }
-        }
-        if (memory.pivot !== undefined) {
-            if (typeof memory.pivot === "number") {
-                this.pivot.set(memory.pivot, memory.pivot);
-            } else {
-                this.pivot.set(memory.pivot.x, memory.pivot.y);
-            }
-        }
-        memory.position !== undefined && this.position.set(memory.position.x, memory.position.y);
-        memory.skew !== undefined && this.skew.set(memory.skew.x, memory.skew.y);
-        memory.visible !== undefined && (this.visible = memory.visible);
-        memory.x !== undefined && (this.x = memory.x);
-        memory.y !== undefined && (this.y = memory.y);
-        memory.cursor !== undefined && (this.cursor = memory.cursor);
-        memory.eventMode !== undefined && (this.eventMode = memory.eventMode);
-        memory.interactive !== undefined && (this.interactive = memory.interactive);
-        memory.interactiveChildren !== undefined && (this.interactiveChildren = memory.interactiveChildren);
-        // spine properties
-        memory.accessible !== undefined && (this.accessible = memory.accessible);
-        memory.autoUpdate !== undefined && (this.autoUpdate = memory.autoUpdate);
-        memory.accessibleChildren !== undefined && (this.accessibleChildren = memory.accessibleChildren);
-        memory.accessibleHint !== undefined && (this.accessibleHint = memory.accessibleHint);
-        memory.accessiblePointerEvents !== undefined && (this.accessiblePointerEvents = memory.accessiblePointerEvents);
-        memory.accessibleText !== undefined && (this.accessibleText = memory.accessibleText);
-        memory.accessibleTitle !== undefined && (this.accessibleTitle = memory.accessibleTitle);
-        memory.accessibleType !== undefined && (this.accessibleType = memory.accessibleType);
-        memory.cullable !== undefined && (this.cullable = memory.cullable);
-        memory.cullableChildren !== undefined && (this.cullableChildren = memory.cullableChildren);
-        memory.label !== undefined && (this.label = memory.label);
-        if (memory.origin !== undefined) {
-            if (typeof memory.origin === "number") {
-                this.origin.set(memory.origin, memory.origin);
-            } else {
-                this.origin.set(memory.origin.x, memory.origin.y);
-            }
-        }
-        memory.sortableChildren !== undefined && (this.sortableChildren = memory.sortableChildren);
-        memory.zIndex !== undefined && (this.zIndex = memory.zIndex);
-        memory.sortDirty !== undefined && (this.sortDirty = memory.sortDirty);
-        memory.tabIndex !== undefined && (this.tabIndex = memory.tabIndex);
-        // end
-        memory.width !== undefined && (this.width = memory.width);
-        memory.height !== undefined && (this.height = memory.height);
+    async setMemory(memory: SpineMemory): Promise<void> {
+        await setMemorySpine(this, memory);
     }
-    setMemory(memory: SpineBaseMemory): Promise<void> | void {
-        this.memory = memory;
-    }
-    readonly skeletonAlias: SpineOptions["skeleton"];
-    readonly atlasAlias: SpineOptions["atlas"];
-    readonly darkTintCore: SpineOptions["darkTint"];
 }
-RegisteredCanvasComponents.add(Spine, CANVAS_SPINE_ID);
+RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
+    name: CANVAS_SPINE_ID,
+    getInstance: async (canvasClass, memory) => {
+        await Assets.load([memory.skeleton, memory.atlas]);
+        const instance = new canvasClass({
+            skeleton: memory.skeleton,
+            atlas: memory.atlas,
+            darkTint: memory.darkTint,
+        });
+        await instance.setMemory(memory);
+        return instance;
+    },
+});
+
+async function setMemorySpine(element: Spine, memory: SpineMemory) {
+    return await setMemoryContainer(element, memory, {
+        end() {
+            memory.accessible !== undefined && (element.accessible = memory.accessible);
+            memory.autoUpdate !== undefined && (element.autoUpdate = memory.autoUpdate);
+            memory.accessibleChildren !== undefined && (element.accessibleChildren = memory.accessibleChildren);
+            memory.accessibleHint !== undefined && (element.accessibleHint = memory.accessibleHint);
+            memory.accessiblePointerEvents !== undefined &&
+                (element.accessiblePointerEvents = memory.accessiblePointerEvents);
+            memory.accessibleText !== undefined && element;
+            memory.accessibleTitle !== undefined && (element.accessibleTitle = memory.accessibleTitle);
+            memory.accessibleType !== undefined && element;
+            memory.cullable !== undefined && (element.cullable = memory.cullable);
+            memory.cullableChildren !== undefined && (element.cullableChildren = memory.cullableChildren);
+            memory.label !== undefined && (element.label = memory.label);
+            if (memory.origin !== undefined) {
+                if (typeof memory.origin === "number") {
+                    element.origin.set(memory.origin, memory.origin);
+                } else {
+                    element.origin.set(memory.origin.x, memory.origin.y);
+                }
+            }
+            memory.sortableChildren !== undefined && (element.sortableChildren = memory.sortableChildren);
+            memory.zIndex !== undefined && (element.zIndex = memory.zIndex);
+            memory.sortDirty !== undefined && (element.sortDirty = memory.sortDirty);
+            memory.tabIndex !== undefined && (element.tabIndex = memory.tabIndex);
+        },
+    });
+}

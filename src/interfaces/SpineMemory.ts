@@ -1,4 +1,4 @@
-import { AsyncLoadExtensionProps, CanvasBaseItemMemory } from "@drincs/pixi-vn";
+import { CanvasBaseItemMemory } from "@drincs/pixi-vn";
 import { SpineOptions as SpineOptionsCore } from "@drincs/pixi-vn-spine/core";
 import SpineOptions from "./SpineOptions";
 interface MemoryCore extends Omit<
@@ -51,5 +51,4 @@ interface MemoryCore extends Omit<
     | "setMask"
     | "skeletonData"
 > {}
-export default interface SpineBaseMemory
-    extends MemoryCore, CanvasBaseItemMemory, Omit<SpineOptions, "scale">, AsyncLoadExtensionProps {}
+export default interface SpineMemory extends MemoryCore, CanvasBaseItemMemory, Omit<SpineOptions, "scale"> {}

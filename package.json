@@ -62,17 +62,14 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.5.7",
+    "@drincs/pixi-vn": ">=1.5.8",
     "@esotericsoftware/spine-core": "^4.2.0",
     "@esotericsoftware/spine-pixi-v8": "^4.2.0"
   },
   "keywords": [
-    "game",
-    "js",
-    "novel",
-    "pixi",
     "pixi-vn",
-    "visual",
-    "visual-novel"
+    "spine-2D",
+    "spine",
+    "2D"
   ]
 }

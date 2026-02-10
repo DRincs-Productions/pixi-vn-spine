@@ -1,2 +1,2 @@
-export type { default as SpineBaseMemory } from "./SpineBaseMemory";
-export type { SkeletonData, default as SpineOptions } from "./SpineOptions";
+export type { default as SpineMemory } from "./SpineMemory";
+export type { default as SpineOptions } from "./SpineOptions";
