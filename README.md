@@ -1,5 +1,7 @@
 # Spine 2D integration for Pixi’VN
 
+<img width="1600" height="400" alt="pixi-vn-cover" src="https://github.com/user-attachments/assets/6d0edd5e-4ff6-414b-9c27-348e70f866b1" />
+
 `@drincs/pixi-vn-spine` is a lightweight wrapper around `@esotericsoftware/spine-pixi-v8`, designed specifically to integrate **Spine 2D** components into **Pixi’VN** projects.
 
 The library provides Pixi’VN-friendly abstractions for using Spine animations inside visual novels, making it easier to load, manage, and display Spine content within the Pixi’VN ecosystem.
