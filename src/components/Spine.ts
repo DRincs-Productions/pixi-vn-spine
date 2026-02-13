@@ -1,5 +1,6 @@
 import { Assets, CanvasBaseItem, RegisteredCanvasComponents, setMemoryContainer } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
+import TrackMemory from "src/interfaces/TrackMemory";
 import { SpineMemory, SpineOptions } from "../interfaces";
 
 const CANVAS_SPINE_ID = "Spine";
@@ -104,10 +105,27 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
             skeleton: this.skeletonAlias,
             atlas: this.atlasAlias,
             darkTint: this.darkTintCore,
+            state: {
+                tracks: this.state.tracks.map((track) => {
+                    if (!track || !track.animation) {
+                        return null;
+                    }
+                    const res: TrackMemory = {
+                        animationName: track.animation.name,
+                        loop: track.loop,
+                        trackIndex: track.trackIndex,
+                        delay: track.delay,
+                    };
+                    return res;
+                }),
+            },
         };
     }
     async setMemory(memory: SpineMemory): Promise<void> {
         await setMemorySpine(this, memory);
+    }
+    get setAnimation() {
+        return this.state.setAnimation;
     }
 }
 RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
@@ -125,7 +143,8 @@ RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
 });
 
 async function setMemorySpine(element: Spine, memory: SpineMemory) {
-    return await setMemoryContainer(element, memory, {
+    element.state.clearTracks();
+    await setMemoryContainer(element, memory, {
         end() {
             memory.accessible !== undefined && (element.accessible = memory.accessible);
             memory.autoUpdate !== undefined && (element.autoUpdate = memory.autoUpdate);
@@ -151,5 +170,11 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
             memory.sortDirty !== undefined && (element.sortDirty = memory.sortDirty);
             memory.tabIndex !== undefined && (element.tabIndex = memory.tabIndex);
         },
+    });
+    memory.state.tracks.forEach((track, index) => {
+        if (!track) {
+            return;
+        }
+        element.state.setAnimation(index, track.animationName, track.loop);
     });
 }

@@ -1,6 +1,7 @@
 import { CanvasBaseItemMemory } from "@drincs/pixi-vn";
 import { SpineOptions as SpineOptionsCore } from "@drincs/pixi-vn-spine/core";
 import SpineOptions from "./SpineOptions";
+import TrackMemory from "./TrackMemory";
 interface MemoryCore extends Omit<
     SpineOptionsCore,
     | "skeletonData"
@@ -51,4 +52,6 @@ interface MemoryCore extends Omit<
     | "setMask"
     | "skeletonData"
 > {}
-export default interface SpineMemory extends MemoryCore, CanvasBaseItemMemory, Omit<SpineOptions, "scale"> {}
+export default interface SpineMemory extends MemoryCore, CanvasBaseItemMemory, Omit<SpineOptions, "scale"> {
+    state: { tracks: (TrackMemory | null)[] };
+}

@@ -27,5 +27,7 @@ const spine = new Spine({ atlas: "spineAtlas", skeleton: "spineSkeleton" });
 spine.x = canvas.width / 2;
 spine.y = canvas.height;
 
+spine.setAnimation(0, "idle", true);
+
 canvas.add("spine", spine);
 ```
