@@ -54,4 +54,5 @@ interface MemoryCore extends Omit<
 > {}
 export default interface SpineMemory extends MemoryCore, CanvasBaseItemMemory, Omit<SpineOptions, "scale"> {
     state: { tracks: (TrackMemory | null)[] };
+    currentSkin?: string;
 }

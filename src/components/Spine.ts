@@ -119,13 +119,44 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                     return res;
                 }),
             },
+            currentSkin: this.skeleton.skin?.name,
         };
     }
     async setMemory(memory: SpineMemory): Promise<void> {
         await setMemorySpine(this, memory);
     }
-    get setAnimation() {
-        return this.state.setAnimation;
+    /**
+     * Set the animation of the Spine component.
+     * @param trackIndex The track index to set the animation on.
+     * @param animationName The name of the animation to set.
+     * @param options Additional options for setting the animation.
+     */
+    setAnimation(
+        trackIndex: number,
+        animationName: string,
+        options: {
+            loop?: boolean;
+            /**
+             * If true, the animation will be completed before the next step.
+             * @default true
+             */
+            forceCompleteBeforeNext?: boolean;
+        } = {},
+    ) {
+        const { loop, forceCompleteBeforeNext = true } = options;
+        return this.state.setAnimation(trackIndex, animationName, loop);
+    }
+    /**
+     * Set the skin of the spine sprite.
+     * @param skinName The name of the skin.
+     */
+    setSkin(skinName: string) {
+        try {
+            this.skeleton.setSkinByName(skinName);
+            this.skeleton.setSlotsToSetupPose();
+        } catch (e) {
+            console.error(`Failed to set skin: ${skinName}`, e);
+        }
     }
 }
 RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
@@ -144,6 +175,7 @@ RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
 
 async function setMemorySpine(element: Spine, memory: SpineMemory) {
     element.state.clearTracks();
+    memory.currentSkin !== undefined && element.setSkin(memory.currentSkin);
     await setMemoryContainer(element, memory, {
         end() {
             memory.accessible !== undefined && (element.accessible = memory.accessible);
