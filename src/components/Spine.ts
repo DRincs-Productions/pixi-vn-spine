@@ -135,6 +135,9 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         trackIndex: number,
         animationName: string,
         options: {
+            /**
+             * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
+             */
             loop?: boolean;
             /**
              * If true, the animation will be completed before the next step.
