@@ -1,7 +1,7 @@
 {
   "name": "@drincs/pixi-vn-spine",
   "description": "Spine 2D integration for Pixi'VN",
-  "version": "0.1.7",
+  "version": "0.2.0",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -62,7 +62,7 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.5.8",
+    "@drincs/pixi-vn": ">=1.5.10",
     "@esotericsoftware/spine-core": "^4.2.0",
     "@esotericsoftware/spine-pixi-v8": "^4.2.0"
   },

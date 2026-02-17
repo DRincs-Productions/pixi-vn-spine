@@ -1,5 +1,14 @@
-import { Assets, CanvasBaseItem, RegisteredCanvasComponents, setMemoryContainer } from "@drincs/pixi-vn";
+import {
+    AnimationOptionsCommon,
+    Assets,
+    At,
+    CanvasBaseItem,
+    RegisteredCanvasComponents,
+    setMemoryContainer,
+    timeline,
+} from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
+import type { AnimationOptions as MotionAnimationOptions, At as MotionAt } from "motion";
 import TrackMemory from "src/interfaces/TrackMemory";
 import { SpineMemory, SpineOptions } from "../interfaces";
 
@@ -148,6 +157,53 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
     ) {
         const { loop, forceCompleteBeforeNext = true } = options;
         return this.state.setAnimation(trackIndex, animationName, loop);
+    }
+    setAnimationSequence(
+        sequence: [
+            string,
+            AnimationOptionsCommon &
+                At & {
+                    /**
+                     * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
+                     */
+                    loop?: boolean;
+                },
+        ][],
+        options: {
+            /**
+             * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
+             */
+            loop?: boolean;
+            /**
+             * If true, the animation will be completed before the next step.
+             * @default true
+             */
+            forceCompleteBeforeNext?: boolean;
+        } = {},
+    ) {
+        const { loop: sequenceLoop } = options;
+        const results: (MotionAnimationOptions & MotionAt)[] = [];
+        sequence.forEach(([currentAnimationName, animOptions], index) => {
+            const { loop, ...rest } = animOptions;
+            if (sequence.length > index + 1) {
+                const nextAnimationName = sequence[index + 1][0];
+                results.push({
+                    ...rest,
+                    onComplete: () => {
+                        this.setAnimation(index + 1, nextAnimationName, { loop });
+                    },
+                });
+            } else if (sequenceLoop) {
+                const firstAnimationName = sequence[0][0];
+                results.push({
+                    ...rest,
+                    onComplete: () => {
+                        this.setAnimation(0, firstAnimationName, { loop });
+                    },
+                });
+            }
+        });
+        timeline(results);
     }
     /**
      * Set the skin of the spine sprite.
