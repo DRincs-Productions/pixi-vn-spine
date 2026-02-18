@@ -9,8 +9,9 @@ import {
 } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
 import type { AnimationOptions as MotionAnimationOptions, At as MotionAt } from "motion";
-import TrackMemory from "src/interfaces/TrackMemory";
 import { SpineMemory, SpineOptions } from "../interfaces";
+import TrackMemory from "../interfaces/TrackMemory";
+import { logger } from "../utils/log-utility";
 
 const CANVAS_SPINE_ID = "Spine";
 
@@ -241,7 +242,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         sequence.forEach(([currentAnimationName, animOptions], index) => {
             const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
             if (!currentAnimation) {
-                console.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);
+                logger.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);
                 return;
             }
             const { loop, delay, duration = currentAnimation.duration, ...rest } = animOptions;
@@ -282,7 +283,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
             this.skeleton.setSkinByName(skinName);
             this.skeleton.setSlotsToSetupPose();
         } catch (e) {
-            console.error(`Failed to set skin: ${skinName}`, e);
+            logger.error(`Failed to set skin: ${skinName}`, e);
         }
     }
 }
