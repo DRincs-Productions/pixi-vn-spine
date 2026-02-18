@@ -14,6 +14,22 @@ import { SpineMemory, SpineOptions } from "../interfaces";
 
 const CANVAS_SPINE_ID = "Spine";
 
+type SequenceOptions = Omit<AnimationOptionsCommon, "deplay"> &
+    At & {
+        /**
+         * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
+         */
+        loop?: boolean;
+        /**
+         * Delay in seconds before the animation starts. If not provided, the animation will start immediately after the previous animation on the track, or after the mix duration if there is a previous animation.
+         * If > 0, sets TrackEntry#delay. If <= 0, the delay set is the duration of the previous track entry
+         * minus any mix duration (from the AnimationStateData) plus the specified `delay` (ie the mix
+         * ends at (`delay` = 0) or before (`delay` < 0) the previous track entry duration). If the
+         * previous entry is looping, its next loop completion is used instead of its duration.
+         */
+        delay?: number;
+    };
+
 /**
  * Spine component for Pixi.js, used to display Spine components.
  * @example
@@ -160,12 +176,10 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
     }
     /**
      * Add an animation to a track with the given animation configuration.
-     * @param trackIndex The track index to play the animation on.
      * @param animationName The name of the animation to play.
      * @param options Additional options for playing the track.
      */
     addAnimation(
-        trackIndex: number,
         animationName: string,
         options: {
             /**
@@ -180,9 +194,13 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
              * previous entry is looping, its next loop completion is used instead of its duration.
              */
             delay?: number;
+            /**
+             * The track index to play the animation on.
+             */
+            trackIndex?: number;
         } = {},
     ) {
-        const { loop, delay } = options;
+        const { loop, delay, trackIndex = this.state.tracks.length } = options;
         const milliDelay = delay ? delay * 1000 : 0;
         return this.state.addAnimation(trackIndex, animationName, loop, milliDelay);
     }
@@ -199,24 +217,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
      * ```
      */
     playTrack(
-        sequence: [
-            string,
-            Omit<AnimationOptionsCommon, "deplay"> &
-                At & {
-                    /**
-                     * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
-                     */
-                    loop?: boolean;
-                    /**
-                     * Delay in seconds before the animation starts. If not provided, the animation will start immediately after the previous animation on the track, or after the mix duration if there is a previous animation.
-                     * If > 0, sets TrackEntry#delay. If <= 0, the delay set is the duration of the previous track entry
-                     * minus any mix duration (from the AnimationStateData) plus the specified `delay` (ie the mix
-                     * ends at (`delay` = 0) or before (`delay` < 0) the previous track entry duration). If the
-                     * previous entry is looping, its next loop completion is used instead of its duration.
-                     */
-                    delay?: number;
-                },
-        ][],
+        sequence: [string, SequenceOptions][],
         options: {
             /**
              * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
@@ -229,34 +230,48 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
             forceCompleteBeforeNext?: boolean;
         } = {},
     ) {
+        const index = this.state.tracks.length;
+        const [animationName, animationOptions] = sequence[0];
+        this.setAnimation(index, animationName, animationOptions);
+        return this.setTrackSequence(index, sequence, options);
+    }
+    setTrackSequence(indexTrack: number, sequence: [string, SequenceOptions][], options: { loop?: boolean } = {}) {
         const { loop: sequenceLoop } = options;
         const results: (MotionAnimationOptions & MotionAt)[] = [];
         sequence.forEach(([currentAnimationName, animOptions], index) => {
-            const { loop, delay, ...rest } = animOptions;
+            const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
+            if (!currentAnimation) {
+                console.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);
+                return;
+            }
+            const { loop, delay, duration = currentAnimation.duration, ...rest } = animOptions;
 
             if (sequence.length > index + 1) {
-                const nextAnimation = sequence[index + 1];
-                const nextAnimationName = nextAnimation[0];
-                const { loop, delay } = nextAnimation[1];
+                const [nextAnimationName, options] = sequence[index + 1];
                 results.push({
                     ...rest,
+                    delay: delay,
+                    duration: duration,
                     onComplete: () => {
-                        this.addAnimation(this.state.tracks.length, nextAnimationName, { loop, delay });
+                        this.setAnimation(indexTrack, nextAnimationName, options);
                     },
                 });
             } else if (sequenceLoop) {
-                const firstAnimation = sequence[0];
-                const firstAnimationName = firstAnimation[0];
-                const { loop, delay } = firstAnimation[1];
+                const [firstAnimationName, options] = sequence[0];
                 results.push({
                     ...rest,
+                    delay: delay,
+                    duration: duration,
                     onComplete: () => {
-                        this.addAnimation(this.state.tracks.length, firstAnimationName, { loop, delay });
+                        this.setAnimation(indexTrack, firstAnimationName, options);
                     },
                 });
             }
         });
-        timeline(results);
+        return timeline(results);
+    }
+    clearTracks() {
+        this.state.clearTracks();
     }
     /**
      * Set the skin of the spine sprite.
