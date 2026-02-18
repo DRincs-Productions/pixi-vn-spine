@@ -222,7 +222,12 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                 logger.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);
                 return;
             }
-            const { loop, delay, duration = currentAnimation.duration, ...rest } = animOptions;
+            const {
+                loop,
+                delay,
+                duration = currentAnimation.duration ? currentAnimation.duration / 1000 : undefined,
+                ...rest
+            } = animOptions;
 
             if (sequence.length > index + 1) {
                 const [nextAnimationName, options] = sequence[index + 1];
@@ -231,6 +236,9 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                     delay: delay,
                     duration: duration,
                     onComplete: () => {
+                        console.log(
+                            `Animation ${currentAnimationName} completed, playing next animation ${nextAnimationName}`,
+                        );
                         this.setAnimation(indexTrack, nextAnimationName, options);
                     },
                 });
@@ -241,6 +249,9 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                     delay: delay,
                     duration: duration,
                     onComplete: () => {
+                        console.log(
+                            `Animation ${currentAnimationName} completed, looping back to first animation ${firstAnimationName}`,
+                        );
                         this.setAnimation(indexTrack, firstAnimationName, options);
                     },
                 });
