@@ -145,10 +145,10 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
              * If true, the animation will be completed before the next step.
              * @default true
              */
-            forceCompleteBeforeNext?: boolean;
+            completeOnContinue?: boolean;
         } = {},
     ) {
-        const { loop, forceCompleteBeforeNext = true } = options;
+        const { loop, completeOnContinue = true } = options;
         return this.state.setAnimation(trackIndex, animationName, loop);
     }
     /**
@@ -190,7 +190,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
      * spine.playTrack([
      *     ["walk", { loop: true, duration: 2 }],
      *     ["jump", { delay: 0.5 }],
-     * ], { loop: true, forceCompleteBeforeNext: true });
+     * ], { loop: true, completeOnContinue: true });
      * ```
      */
     playTrack(
@@ -204,7 +204,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
              * If true, the animation will be completed before the next step.
              * @default true
              */
-            forceCompleteBeforeNext?: boolean;
+            completeOnContinue?: boolean;
         } = {},
     ) {
         const index = this.state.tracks.length;
