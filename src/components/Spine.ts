@@ -1,35 +1,11 @@
-import {
-    AnimationOptionsCommon,
-    Assets,
-    At,
-    CanvasBaseItem,
-    RegisteredCanvasComponents,
-    setMemoryContainer,
-    timeline,
-} from "@drincs/pixi-vn";
+import { Assets, CanvasBaseItem, RegisteredCanvasComponents, setMemoryContainer, timeline } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
 import type { AnimationOptions as MotionAnimationOptions, At as MotionAt } from "motion";
-import { SpineMemory, SpineOptions } from "../interfaces";
+import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
 import TrackMemory from "../interfaces/TrackMemory";
 import { logger } from "../utils/log-utility";
 
 const CANVAS_SPINE_ID = "Spine";
-
-type SequenceOptions = Omit<AnimationOptionsCommon, "deplay"> &
-    At & {
-        /**
-         * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
-         */
-        loop?: boolean;
-        /**
-         * Delay in seconds before the animation starts. If not provided, the animation will start immediately after the previous animation on the track, or after the mix duration if there is a previous animation.
-         * If > 0, sets TrackEntry#delay. If <= 0, the delay set is the duration of the previous track entry
-         * minus any mix duration (from the AnimationStateData) plus the specified `delay` (ie the mix
-         * ends at (`delay` = 0) or before (`delay` < 0) the previous track entry duration). If the
-         * previous entry is looping, its next loop completion is used instead of its duration.
-         */
-        delay?: number;
-    };
 
 /**
  * Spine component for Pixi.js, used to display Spine components.
@@ -218,7 +194,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
      * ```
      */
     playTrack(
-        sequence: [string, SequenceOptions][],
+        sequence: [string, SpineSequenceOptions][],
         options: {
             /**
              * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
@@ -234,9 +210,10 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         const index = this.state.tracks.length;
         const [animationName, animationOptions] = sequence[0];
         this.setAnimation(index, animationName, animationOptions);
-        return this.setTrackSequence(index, sequence, options);
+        const timeline = this.setTrackSequence(index, sequence, options);
+        return timeline;
     }
-    setTrackSequence(indexTrack: number, sequence: [string, SequenceOptions][], options: { loop?: boolean } = {}) {
+    setTrackSequence(indexTrack: number, sequence: [string, SpineSequenceOptions][], options: { loop?: boolean } = {}) {
         const { loop: sequenceLoop } = options;
         const results: (MotionAnimationOptions & MotionAt)[] = [];
         sequence.forEach(([currentAnimationName, animOptions], index) => {
@@ -271,6 +248,9 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         });
         return timeline(results);
     }
+    /**
+     * Removes all animations from all tracks, leaving skeletons in their current pose.
+     */
     clearTracks() {
         this.state.clearTracks();
     }
