@@ -3,6 +3,7 @@ import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
 import type { AnimationOptions as MotionAnimationOptions, At as MotionAt } from "motion";
 import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
 import TrackMemory from "../interfaces/TrackMemory";
+import { CompleteOnContinueTracks } from "../memory/CompleteOnContinueTracks";
 import { logger } from "../utils/log-utility";
 
 const CANVAS_SPINE_ID = "Spine";
@@ -152,6 +153,13 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         },
     ) {
         const { loop, completeOnContinue = true, trackIndex } = options;
+        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || { spine: this, tracks: [] };
+        if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
+            mem.tracks.push(trackIndex);
+            CompleteOnContinueTracks.tracks.set(`${this.uid}`, mem);
+        } else if (!completeOnContinue && mem.tracks.includes(trackIndex)) {
+            mem.tracks = mem.tracks.filter((index) => index !== trackIndex);
+        }
         return this.state.setAnimation(trackIndex, animationName, loop);
     }
     /**
@@ -187,6 +195,13 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
     ) {
         const { loop, delay, trackIndex = this.state.tracks.length, completeOnContinue } = options;
         const milliDelay = delay ? delay * 1000 : 0;
+        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || { spine: this, tracks: [] };
+        if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
+            mem.tracks.push(trackIndex);
+            CompleteOnContinueTracks.tracks.set(`${this.uid}`, mem);
+        } else if (!completeOnContinue && mem.tracks.includes(trackIndex)) {
+            mem.tracks = mem.tracks.filter((index) => index !== trackIndex);
+        }
         return this.state.addAnimation(trackIndex, animationName, loop, milliDelay);
     }
     /**
@@ -216,17 +231,18 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         } = {},
     ) {
         const index = this.state.tracks.length;
+        const { completeOnContinue = true } = options;
         const [animationName, animationOptions] = sequence[0];
-        this.setAnimation(animationName, { trackIndex: index, ...animationOptions });
+        this.addAnimation(animationName, { trackIndex: index, completeOnContinue, ...animationOptions });
         const timeline = this.setTrackSequence(index, sequence, options);
         return timeline;
     }
     setTrackSequence(
         trackIndex: number,
         sequence: [string, SpineSequenceOptions | undefined][],
-        options: { loop?: boolean } = {},
+        options: { loop?: boolean; completeOnContinue?: boolean } = {},
     ) {
-        const { loop: sequenceLoop } = options;
+        const { loop: sequenceLoop, completeOnContinue = true } = options;
         const results: (MotionAnimationOptions & MotionAt)[] = [];
         sequence.forEach(([currentAnimationName, animOptions], index) => {
             const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
@@ -247,12 +263,8 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                     ...rest,
                     delay: delay,
                     duration: duration,
-                    onComplete: () => {
-                        console.log(
-                            `Animation ${currentAnimationName} completed, playing next animation ${nextAnimationName}`,
-                        );
-                        this.setAnimation(nextAnimationName, { trackIndex, ...options });
-                    },
+                    onComplete: () =>
+                        this.addAnimation(nextAnimationName, { trackIndex, completeOnContinue, ...options }),
                 });
             } else if (sequenceLoop) {
                 const [firstAnimationName, options] = sequence[0];
@@ -260,12 +272,8 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                     ...rest,
                     delay: delay,
                     duration: duration,
-                    onComplete: () => {
-                        console.log(
-                            `Animation ${currentAnimationName} completed, looping back to first animation ${firstAnimationName}`,
-                        );
-                        this.setAnimation(firstAnimationName, { trackIndex, ...options });
-                    },
+                    onComplete: () =>
+                        this.addAnimation(firstAnimationName, { trackIndex, completeOnContinue, ...options }),
                 });
             }
         });
