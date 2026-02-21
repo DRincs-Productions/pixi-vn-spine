@@ -1,6 +1,13 @@
-import { Assets, CanvasBaseItem, RegisteredCanvasComponents, setMemoryContainer, timeline } from "@drincs/pixi-vn";
+import {
+    Assets,
+    CanvasBaseItem,
+    RegisteredCanvasComponents,
+    SegmentOptions,
+    setMemoryContainer,
+    timeline,
+} from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
-import type { AnimationOptions as MotionAnimationOptions, At as MotionAt } from "motion";
+import type { AnimationPlaybackControlsWithThen, SequenceOptions } from "motion";
 import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
 import TrackMemory from "../interfaces/TrackMemory";
 import { CompleteOnContinueTracks } from "../memory/CompleteOnContinueTracks";
@@ -229,7 +236,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
              */
             completeOnContinue?: boolean;
         } = {},
-    ) {
+    ): Omit<AnimationPlaybackControlsWithThen, "pause"> {
         const index = this.state.tracks.length;
         const { completeOnContinue = true } = options;
         const [animationName, animationOptions] = sequence[0];
@@ -240,11 +247,11 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
     setTrackSequence(
         trackIndex: number,
         sequence: [string, SpineSequenceOptions | undefined][],
-        options: { loop?: boolean; completeOnContinue?: boolean } = {},
+        options: SequenceOptions & { completeOnContinue?: boolean } = {},
     ) {
-        const { loop: sequenceLoop, completeOnContinue = true } = options;
-        const results: (MotionAnimationOptions & MotionAt)[] = [];
-        sequence.forEach(([currentAnimationName, animOptions], index) => {
+        const { completeOnContinue = true, ...rest } = options;
+        const results: SegmentOptions[] = [];
+        sequence.forEach(([currentAnimationName, animOptions]) => {
             const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
             if (!currentAnimation) {
                 logger.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);
@@ -257,33 +264,29 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                 ...rest
             } = animOptions || {};
 
-            if (sequence.length > index + 1) {
-                const [nextAnimationName, options] = sequence[index + 1];
-                results.push({
-                    ...rest,
-                    delay: delay,
-                    duration: duration,
-                    onComplete: () =>
-                        this.addAnimation(nextAnimationName, { trackIndex, completeOnContinue, ...options }),
-                });
-            } else if (sequenceLoop) {
-                const [firstAnimationName, options] = sequence[0];
-                results.push({
-                    ...rest,
-                    delay: delay,
-                    duration: duration,
-                    onComplete: () =>
-                        this.addAnimation(firstAnimationName, { trackIndex, completeOnContinue, ...options }),
-                });
-            }
+            results.push({
+                ...rest,
+                delay: delay,
+                duration: duration,
+                onPlay: () =>
+                    this.addAnimation(currentAnimationName, { ...animOptions, trackIndex, completeOnContinue }),
+                onComplete: () => this.clearTrack(trackIndex),
+            });
         });
-        return timeline(results);
+        return timeline(results, { ...rest });
     }
     /**
      * Removes all animations from all tracks, leaving skeletons in their current pose.
      */
     clearTracks() {
         this.state.clearTracks();
+    }
+    /**
+     * Removes a track by index, leaving skeletons in their current pose.
+     * @param trackIndex The track index to clear. Removes all animations from the track, leaving skeletons in their current pose.
+     */
+    clearTrack(trackIndex: number) {
+        this.state.clearTrack(trackIndex);
     }
     /**
      * Set the skin of the spine sprite.
