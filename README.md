@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine.svg" alt="npm package"></a>
   <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads"></a>
-  <img alt="Discord" src="https://img.shields.io/discord/1263071210011496501">
+  <a href="https://discord.gg/E95FZWakzp"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501"></a>
 </p>
 
 `@drincs/pixi-vn-spine` is a lightweight wrapper around `@esotericsoftware/spine-pixi-v8`, designed specifically to integrate **Spine 2D** components into **Pixi’VN** projects.
