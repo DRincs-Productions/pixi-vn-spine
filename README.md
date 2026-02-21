@@ -1,6 +1,12 @@
 # Spine 2D integration for Pixi’VN
 
-<img width="1600" height="400" alt="pixi-vn-cover" src="https://github.com/user-attachments/assets/6d0edd5e-4ff6-414b-9c27-348e70f866b1" />
+![pixi-vn-cover](https://github.com/user-attachments/assets/6d0edd5e-4ff6-414b-9c27-348e70f866b1)
+
+<p align="center">
+  <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine.svg" alt="npm package"></a>
+  <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads"></a>
+  <img alt="Discord" src="https://img.shields.io/discord/1263071210011496501">
+</p>
 
 `@drincs/pixi-vn-spine` is a lightweight wrapper around `@esotericsoftware/spine-pixi-v8`, designed specifically to integrate **Spine 2D** components into **Pixi’VN** projects.
 
