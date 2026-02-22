@@ -238,6 +238,7 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         } = {},
     ): Omit<AnimationPlaybackControlsWithThen, "pause"> {
         const index = this.state.tracks.length;
+        this.clearTrack(index);
         const { completeOnContinue = true } = options;
         const [animationName, animationOptions] = sequence[0];
         this.addAnimation(animationName, { trackIndex: index, completeOnContinue, ...animationOptions });

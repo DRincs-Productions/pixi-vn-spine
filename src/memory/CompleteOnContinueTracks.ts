@@ -1,11 +1,12 @@
+import { CachedMap } from "@drincs/pixi-vn";
 import type { Spine } from "../components";
 
 export class CompleteOnContinueTracks {
-    static tracks: Map<
+    static tracks: CachedMap<
         string,
         {
             spine: Spine;
             tracks: number[];
         }
-    > = new Map();
+    > = new CachedMap({ cacheSize: 4 });
 }
