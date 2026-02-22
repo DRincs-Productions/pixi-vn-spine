@@ -1,6 +1,7 @@
 import {
     AdditionalPositionsExtension,
     addListenerHandler,
+    analizePositionsExtensionProps,
     AnchorExtension,
     Assets,
     CanvasBaseItem,
@@ -116,6 +117,10 @@ export default class Spine
             interactiveChildren: this.interactiveChildren,
             height: this.height,
             width: this.width,
+            // additional positions and anchor
+            anchor: this._anchor ? this.anchor : undefined,
+            align: this._align,
+            percentagePosition: this._percentagePosition,
             // spine properties
             accessible: this.accessible,
             autoUpdate: this.autoUpdate,
@@ -167,6 +172,8 @@ export default class Spine
     }
     async setMemory(memory: SpineMemory): Promise<void> {
         await setMemorySpine(this, memory);
+        this.reloadAnchor();
+        this.reloadPosition();
     }
     /**
      * Set a current track with the given animation configuration.
@@ -615,6 +622,7 @@ RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
 });
 
 async function setMemorySpine(element: Spine, memory: SpineMemory) {
+    memory = analizePositionsExtensionProps(memory)!;
     element.state.clearTracks();
     memory.currentSkin !== undefined && element.setSkin(memory.currentSkin);
     await setMemoryContainer(element, memory, {
@@ -642,6 +650,11 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
             memory.zIndex !== undefined && (element.zIndex = memory.zIndex);
             memory.sortDirty !== undefined && (element.sortDirty = memory.sortDirty);
             memory.tabIndex !== undefined && (element.tabIndex = memory.tabIndex);
+            // "anchor" in memory && memory.anchor !== undefined && (element.anchor = memory.anchor as number | PointData);
+            "align" in memory && memory.align !== undefined && (element.align = memory.align as Partial<PointData>);
+            "percentagePosition" in memory &&
+                memory.percentagePosition !== undefined &&
+                (element.percentagePosition = memory.percentagePosition as Partial<PointData>);
         },
     });
     const indexToIgnore: number[] = [];
