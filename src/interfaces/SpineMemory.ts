@@ -1,4 +1,9 @@
-import { CanvasBaseItemMemory, ListenerExtensionMemory } from "@drincs/pixi-vn";
+import {
+    AdditionalPositionsExtensionProps,
+    AnchorExtensionProps,
+    CanvasBaseItemMemory,
+    ListenerExtensionMemory,
+} from "@drincs/pixi-vn";
 import { SpineOptions as SpineOptionsCore } from "@drincs/pixi-vn-spine/core";
 import type { SequenceOptions } from "motion";
 import SpineOptions from "./SpineOptions";
@@ -56,7 +61,13 @@ interface MemoryCore extends Omit<
     | "skeletonData"
 > {}
 export default interface SpineMemory
-    extends MemoryCore, CanvasBaseItemMemory, ListenerExtensionMemory, Omit<SpineOptions, "scale"> {
+    extends
+        MemoryCore,
+        CanvasBaseItemMemory,
+        ListenerExtensionMemory,
+        AdditionalPositionsExtensionProps,
+        AnchorExtensionProps,
+        Omit<SpineOptions, "scale"> {
     state: { tracks: (TrackMemory | null)[] };
     currentSkin?: string;
     sequenceTimelines: {
