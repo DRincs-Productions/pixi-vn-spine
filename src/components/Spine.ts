@@ -1,13 +1,17 @@
 import {
+    addListenerHandler,
     Assets,
     CanvasBaseItem,
     createExportableElement,
+    ListenerExtension,
+    OnEventsHandlers,
     RegisteredCanvasComponents,
     SegmentOptions,
     setMemoryContainer,
     timeline,
 } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
+import { ContainerChild, ContainerEvents, EventEmitter } from "@drincs/pixi-vn/pixi.js";
 import type { AnimationPlaybackControlsWithThen, SequenceOptions } from "motion";
 import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
 import TrackMemory from "../interfaces/TrackMemory";
@@ -41,7 +45,7 @@ const CANVAS_SPINE_ID = "Spine";
  * canvas.add("spine", spine);
  * ```
  */
-export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemory> {
+export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemory>, ListenerExtension {
     constructor(options: Omit<SpineOptions, "parent">) {
         const spineCore = CoreSpine.from(options);
         const { skeleton, parent, ...props } = spineCore;
@@ -334,6 +338,27 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         } catch (e) {
             logger.error(`Failed to set skin: ${skinName}`, e);
         }
+    }
+
+    readonly onEventsHandlers: OnEventsHandlers = {};
+    override on<T extends keyof ContainerEvents<ContainerChild> | keyof { [K: symbol]: any; [K: {} & string]: any }>(
+        event: T,
+        fn: (
+            ...args: [
+                ...EventEmitter.ArgumentMap<
+                    ContainerEvents<ContainerChild> & { [K: symbol]: any; [K: {} & string]: any }
+                >[Extract<
+                    T,
+                    keyof ContainerEvents<ContainerChild> | keyof { [K: symbol]: any; [K: {} & string]: any }
+                >],
+                typeof this,
+            ]
+        ) => void,
+        context?: any,
+    ): this {
+        addListenerHandler(event, this, fn);
+
+        return super.on<T>(event, (...e) => fn(...e, this), context);
     }
 }
 RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
