@@ -62,7 +62,7 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "@drincs/pixi-vn": ">=1.5.12",
+    "@drincs/pixi-vn": ">=1.5.13",
     "@esotericsoftware/spine-core": "^4.2.0",
     "@esotericsoftware/spine-pixi-v8": "^4.2.0"
   },

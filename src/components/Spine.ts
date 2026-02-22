@@ -1,6 +1,7 @@
 import {
     Assets,
     CanvasBaseItem,
+    createExportableElement,
     RegisteredCanvasComponents,
     SegmentOptions,
     setMemoryContainer,
@@ -56,6 +57,13 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
     readonly skeletonAlias: SpineOptions["skeleton"];
     readonly atlasAlias: SpineOptions["atlas"];
     readonly darkTintCore: SpineOptions["darkTint"];
+    private sequenceTimelines: {
+        [track: number]: {
+            sequence: [string, SpineSequenceOptions | undefined][];
+            options: SequenceOptions & { completeOnContinue?: boolean };
+            timeline: AnimationPlaybackControlsWithThen;
+        };
+    } = {};
     get memory(): SpineMemory {
         return {
             pixivnId: CANVAS_SPINE_ID,
@@ -130,6 +138,15 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
                 }),
             },
             currentSkin: this.skeleton.skin?.name,
+            sequenceTimelines: Object.fromEntries(
+                Object.entries(this.sequenceTimelines).map(([trackIndex, { sequence, options, timeline }]) => [
+                    trackIndex,
+                    {
+                        sequence,
+                        options,
+                    },
+                ]),
+            ),
         };
     }
     async setMemory(memory: SpineMemory): Promise<void> {
@@ -212,8 +229,8 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
         return this.state.addAnimation(trackIndex, animationName, loop, milliDelay);
     }
     /**
-     * Play a track with the given animation configuration.
-     * @param sequence The animation configuration for the track. Corresponds to the motion sequence settings: https://motion.dev/docs/animate#timeline-sequences
+     * Play a sequence of animations on a track, with the given animation configuration.
+     * @param sequence The sequence of animations to play, with their respective options. Corresponds to the motion sequence settings: https://motion.dev/docs/animate#timeline-sequences
      * @param options Additional options for playing the track.
      * @example
      * ```ts
@@ -223,34 +240,47 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
      * ], { loop: true, completeOnContinue: true });
      * ```
      */
-    playTrack(
+    playSequence(
         sequence: [string, SpineSequenceOptions | undefined][],
-        options: {
-            /**
-             * Whether the animation should loop. If true, the animation will loop indefinitely until changed.
-             */
-            loop?: boolean;
+        options: SequenceOptions & {
             /**
              * If true, the animation will be completed before the next step.
              * @default true
              */
             completeOnContinue?: boolean;
+            /**
+             * The track index to play the animation on.
+             */
+            trackIndex?: number;
         } = {},
     ): Omit<AnimationPlaybackControlsWithThen, "pause"> {
-        const index = this.state.tracks.length;
-        this.clearTrack(index);
-        const { completeOnContinue = true } = options;
-        const [animationName, animationOptions] = sequence[0];
-        this.addAnimation(animationName, { trackIndex: index, completeOnContinue, ...animationOptions });
-        const timeline = this.setTrackSequence(index, sequence, options);
+        try {
+            sequence = createExportableElement(sequence);
+        } catch (e) {
+            logger.error("Failed to create exportable element for sequence", e);
+            throw e;
+        }
+        try {
+            options = createExportableElement(options);
+        } catch (e) {
+            logger.error("Failed to create exportable element for options", e);
+            throw e;
+        }
+        const { trackIndex = this.state.tracks.length, completeOnContinue = true } = options;
+        this.clearTrack(trackIndex);
+        const timeline = this.setTrackSequence(sequence, { ...options, trackIndex, completeOnContinue });
+        this.sequenceTimelines[trackIndex] = {
+            sequence,
+            options,
+            timeline,
+        };
         return timeline;
     }
-    setTrackSequence(
-        trackIndex: number,
+    private setTrackSequence(
         sequence: [string, SpineSequenceOptions | undefined][],
-        options: SequenceOptions & { completeOnContinue?: boolean } = {},
+        options: SequenceOptions & { completeOnContinue: boolean; trackIndex: number },
     ) {
-        const { completeOnContinue = true, ...rest } = options;
+        const { completeOnContinue, trackIndex, ...rest } = options;
         const results: SegmentOptions[] = [];
         sequence.forEach(([currentAnimationName, animOptions]) => {
             const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
@@ -280,6 +310,8 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
      * Removes all animations from all tracks, leaving skeletons in their current pose.
      */
     clearTracks() {
+        Object.values(this.sequenceTimelines).forEach(({ timeline }) => timeline.stop());
+        this.sequenceTimelines = {};
         this.state.clearTracks();
     }
     /**
@@ -287,6 +319,8 @@ export default class Spine extends CoreSpine implements CanvasBaseItem<SpineMemo
      * @param trackIndex The track index to clear. Removes all animations from the track, leaving skeletons in their current pose.
      */
     clearTrack(trackIndex: number) {
+        this.sequenceTimelines[trackIndex]?.timeline.stop();
+        delete this.sequenceTimelines[trackIndex];
         this.state.clearTrack(trackIndex);
     }
     /**
@@ -346,10 +380,20 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
             memory.tabIndex !== undefined && (element.tabIndex = memory.tabIndex);
         },
     });
-    memory.state.tracks.forEach((track, index) => {
+    const indexToIgnore: number[] = [];
+    memory.sequenceTimelines &&
+        Object.entries(memory.sequenceTimelines).forEach(([trackIndex, { sequence, options }]) => {
+            const index = Number(trackIndex);
+            indexToIgnore.push(index);
+            element.playSequence(sequence, { ...options, trackIndex: index });
+        });
+    memory.state.tracks.forEach((track) => {
         if (!track) {
             return;
         }
-        element.state.addAnimation(index, track.animationName, track.loop, track.delay);
+        if (indexToIgnore.includes(track.trackIndex)) {
+            return;
+        }
+        element.state.addAnimation(track.trackIndex, track.animationName, track.loop, track.delay);
     });
 }
