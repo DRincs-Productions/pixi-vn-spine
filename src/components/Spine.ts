@@ -15,14 +15,8 @@ import {
     timeline,
 } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
-import type {
-    ContainerChild,
-    ContainerEvents,
-    EventEmitter,
-    ObservablePoint,
-    PointData,
-} from "@drincs/pixi-vn/pixi.js";
 import type { AnimationPlaybackControlsWithThen, SequenceOptions } from "motion";
+import { ContainerChild, ContainerEvents, EventEmitter, ObservablePoint, PointData } from "pixi.js";
 import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
 import TrackMemory from "../interfaces/TrackMemory";
 import { CompleteOnContinueTracks } from "../memory/CompleteOnContinueTracks";
