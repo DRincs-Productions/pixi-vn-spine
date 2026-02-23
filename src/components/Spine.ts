@@ -1,12 +1,9 @@
 import {
-    AdditionalPositionsExtension,
     analizePositionsExtensionProps,
-    AnchorExtension,
     Assets,
     CanvasBaseItem,
     Container,
     createExportableElement,
-    ListenerExtension,
     RegisteredCanvasComponents,
     SegmentOptions,
     setMemoryContainer,
@@ -47,10 +44,7 @@ const CANVAS_SPINE_ID = "Spine";
  * canvas.add("spine", spine);
  * ```
  */
-export default class Spine
-    extends Container<CoreSpine & CanvasBaseItem<any>>
-    implements CanvasBaseItem<SpineMemory>, AnchorExtension, ListenerExtension, AdditionalPositionsExtension
-{
+export default class Spine extends Container<CoreSpine & CanvasBaseItem<any>, SpineMemory> {
     constructor(options: Omit<SpineOptions, "parent">) {
         const { skeleton, atlas, darkTint, autoUpdate, scale, ...containerOptions } = options;
         const spineCore = CoreSpine.from({
@@ -72,7 +66,7 @@ export default class Spine
     readonly atlasAlias: SpineOptions["atlas"];
     readonly darkTintCore: SpineOptions["darkTint"];
     get spine(): CoreSpine {
-        return this.children[0] as CoreSpine;
+        return (this as any).children[0] as CoreSpine;
     }
     private sequenceTimelines: {
         [track: number]: {
@@ -115,7 +109,7 @@ export default class Spine
             ),
             // blank properties to avoid undefined values in memory
             children: [],
-        };
+        } as any;
     }
     async setMemory(memory: SpineMemory): Promise<void> {
         await setMemorySpine(this, memory);
@@ -147,10 +141,11 @@ export default class Spine
         },
     ) {
         const { loop, completeOnContinue = true, trackIndex } = options;
-        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || { spine: this, tracks: [] };
+        const uid = `${(this as any).uid}`;
+        const mem = CompleteOnContinueTracks.tracks.get(`${uid}`) || { spine: this, tracks: [] };
         if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
             mem.tracks.push(trackIndex);
-            CompleteOnContinueTracks.tracks.set(`${this.uid}`, mem);
+            CompleteOnContinueTracks.tracks.set(`${uid}`, mem);
         } else if (!completeOnContinue && mem.tracks.includes(trackIndex)) {
             mem.tracks = mem.tracks.filter((index) => index !== trackIndex);
         }
@@ -189,10 +184,11 @@ export default class Spine
     ) {
         const { loop, delay, trackIndex = this.spine.state.tracks.length, completeOnContinue } = options;
         const milliDelay = delay ? delay * 1000 : 0;
-        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || { spine: this, tracks: [] };
+        const uid = `${(this as any).uid}`;
+        const mem = CompleteOnContinueTracks.tracks.get(`${uid}`) || { spine: this, tracks: [] };
         if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
             mem.tracks.push(trackIndex);
-            CompleteOnContinueTracks.tracks.set(`${this.uid}`, mem);
+            CompleteOnContinueTracks.tracks.set(`${uid}`, mem);
         } else if (!completeOnContinue && mem.tracks.includes(trackIndex)) {
             mem.tracks = mem.tracks.filter((index) => index !== trackIndex);
         }
@@ -321,7 +317,7 @@ RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
     },
 });
 
-async function setMemorySpine(element: Spine, memory: SpineMemory) {
+async function setMemorySpine(element: any, memory: SpineMemory) {
     memory = analizePositionsExtensionProps(memory)!;
     element.clearTracks();
     memory.currentSkin !== undefined && element.setSkin(memory.currentSkin);
