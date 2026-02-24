@@ -21,6 +21,7 @@ import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
 import TrackMemory from "../interfaces/TrackMemory";
 import { CompleteOnContinueTracks } from "../memory/CompleteOnContinueTracks";
 import { logger } from "../utils/log-utility";
+import { getSuperPivot } from "../utils/props-utility";
 
 const CANVAS_SPINE_ID = "Spine";
 
@@ -418,7 +419,7 @@ export default class Spine
         this.reloadPosition();
     }
     get align() {
-        let superPivot = PropsUtils.getSuperPoint(this.pivot, this.angle);
+        let superPivot = getSuperPivot(this);
         let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
         return {
             x: PropsUtils.calculateAlignByPosition(
@@ -448,7 +449,7 @@ export default class Spine
         this.reloadPosition();
     }
     get xAlign() {
-        let superPivot = PropsUtils.getSuperPoint(this.pivot, this.angle);
+        let superPivot = getSuperPivot(this);
         let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
         return PropsUtils.calculateAlignByPosition(
             "width",
@@ -468,7 +469,7 @@ export default class Spine
         this.reloadPosition();
     }
     get yAlign() {
-        let superPivot = PropsUtils.getSuperPoint(this.pivot, this.angle);
+        let superPivot = getSuperPivot(this);
         let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
         return PropsUtils.calculateAlignByPosition(
             "height",
@@ -547,7 +548,7 @@ export default class Spine
     }
     protected reloadPosition() {
         if (this._align) {
-            let superPivot = PropsUtils.getSuperPoint(this.pivot, this.angle);
+            let superPivot = getSuperPivot(this);
             let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
             if (this._align.x !== undefined) {
                 super.x = PropsUtils.calculatePositionByAlign(
