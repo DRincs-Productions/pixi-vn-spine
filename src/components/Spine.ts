@@ -54,16 +54,51 @@ export default class Spine
     extends CoreSpine
     implements CanvasBaseItem<SpineMemory>, AnchorExtension, ListenerExtension, AdditionalPositionsExtension
 {
-    constructor(options: Omit<SpineOptions, "parent">) {
-        const spineCore = CoreSpine.from(options);
+    constructor(options: SpineOptions) {
+        options = analizePositionsExtensionProps(options as any);
+        let align = undefined;
+        let percentagePosition = undefined;
+        let anchor = undefined;
+        if (options && "anchor" in options && options?.anchor !== undefined) {
+            anchor = options.anchor;
+            delete options.anchor;
+        }
+        if (options && "align" in options && options?.align !== undefined) {
+            align = options.align;
+            delete options.align;
+        }
+        if (options && "percentagePosition" in options && options?.percentagePosition !== undefined) {
+            percentagePosition = options.percentagePosition;
+            delete options.percentagePosition;
+        }
+
+        const { skeleton: skeletonOpt, atlas, darkTint, autoUpdate, scale, ...containerOptions } = options;
+        const spineCore = CoreSpine.from({
+            skeleton: skeletonOpt,
+            atlas,
+            darkTint,
+            autoUpdate,
+            scale,
+        });
         const { skeleton, parent, ...props } = spineCore;
         super({
             skeletonData: skeleton.data,
             ...props,
+            ...containerOptions,
         });
         this.skeletonAlias = options.skeleton;
         this.atlasAlias = options.atlas;
         this.darkTintCore = options.darkTint;
+
+        if (anchor) {
+            this.anchor = anchor;
+        }
+        if (align) {
+            this.align = align;
+        }
+        if (percentagePosition) {
+            this.percentagePosition = percentagePosition;
+        }
     }
     readonly pixivnId: string = CANVAS_SPINE_ID;
     readonly skeletonAlias: SpineOptions["skeleton"];
