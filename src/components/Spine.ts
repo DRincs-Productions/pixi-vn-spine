@@ -106,7 +106,7 @@ export default class Spine
     readonly darkTintCore: SpineOptions["darkTint"];
     private sequenceTimelines: {
         [track: number]: {
-            sequence: [string, SpineSequenceOptions | undefined][];
+            sequence: ([string, SpineSequenceOptions] | string)[];
             options: SequenceOptions & { completeOnContinue?: boolean };
             timeline: AnimationPlaybackControlsWithThen;
         };
@@ -294,7 +294,7 @@ export default class Spine
      * ```
      */
     playSequence(
-        sequence: [string, SpineSequenceOptions | undefined][],
+        sequence: ([string, SpineSequenceOptions] | string)[],
         options: SequenceOptions & {
             /**
              * If true, the animation will be completed before the next step.
@@ -330,12 +330,16 @@ export default class Spine
         return timeline;
     }
     private setTrackSequence(
-        sequence: [string, SpineSequenceOptions | undefined][],
+        sequence: ([string, SpineSequenceOptions] | string)[],
         options: SequenceOptions & { completeOnContinue: boolean; trackIndex: number },
     ) {
         const { completeOnContinue, trackIndex, ...rest } = options;
         const results: SegmentOptions[] = [];
-        sequence.forEach(([currentAnimationName, animOptions]) => {
+        sequence.forEach((item) => {
+            if (typeof item === "string") {
+                item = [item, {}];
+            }
+            const [currentAnimationName, animOptions] = item;
             const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
             if (!currentAnimation) {
                 logger.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);

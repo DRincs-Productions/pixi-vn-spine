@@ -72,7 +72,7 @@ export default interface SpineMemory
     currentSkin?: string;
     sequenceTimelines: {
         [track: number]: {
-            sequence: [string, SpineSequenceOptions | undefined][];
+            sequence: ([string, SpineSequenceOptions] | string)[];
             options: SequenceOptions & { completeOnContinue?: boolean };
         };
     };
