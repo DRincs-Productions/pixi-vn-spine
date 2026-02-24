@@ -135,12 +135,12 @@ export default class Spine extends Container<CoreSpine & CanvasBaseItem<any>, Sp
             loop?: boolean;
             /**
              * If true, the animation will be completed before the next step.
-             * @default true
+             * @default false
              */
             completeOnContinue?: boolean;
         },
     ) {
-        const { loop, completeOnContinue = true, trackIndex } = options;
+        const { loop, completeOnContinue = false, trackIndex } = options;
         const uid = `${(this as any).uid}`;
         const mem = CompleteOnContinueTracks.tracks.get(`${uid}`) || { spine: this, tracks: [] };
         if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
@@ -177,7 +177,7 @@ export default class Spine extends Container<CoreSpine & CanvasBaseItem<any>, Sp
             trackIndex?: number;
             /**
              * If true, the animation will be completed before the next step.
-             * @default true
+             * @default false
              */
             completeOnContinue?: boolean;
         } = {},
@@ -211,7 +211,7 @@ export default class Spine extends Container<CoreSpine & CanvasBaseItem<any>, Sp
         options: SequenceOptions & {
             /**
              * If true, the animation will be completed before the next step.
-             * @default true
+             * @default false
              */
             completeOnContinue?: boolean;
             /**
@@ -232,7 +232,7 @@ export default class Spine extends Container<CoreSpine & CanvasBaseItem<any>, Sp
             logger.error("Failed to create exportable element for options", e);
             throw e;
         }
-        const { trackIndex = this.spine.state.tracks.length, completeOnContinue = true } = options;
+        const { trackIndex = this.spine.state.tracks.length, completeOnContinue = false } = options;
         this.clearTrack(trackIndex);
         const timeline = this.setTrackSequence(sequence, { ...options, trackIndex, completeOnContinue });
         this.sequenceTimelines[trackIndex] = {
