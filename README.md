@@ -3,8 +3,8 @@
 ![pixi-vn-cover](https://github.com/user-attachments/assets/6d0edd5e-4ff6-414b-9c27-348e70f866b1)
 
 <p align="center">
-  <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine.svg" alt="npm package"></a>
-  <a href="https://npmjs.com/package/@drincs/pixi-vn"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads"></a>
+  <a href="https://npmjs.com/package/@drincs/pixi-vn-spine"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine.svg" alt="npm package"></a>
+  <a href="https://npmjs.com/package/@drincs/pixi-vn-spine"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads"></a>
   <a href="https://discord.gg/E95FZWakzp"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501"></a>
 </p>
 
