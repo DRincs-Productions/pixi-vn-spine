@@ -10,11 +10,10 @@ import {
     OnEventsHandlers,
     CanvasPropertyUtility as PropsUtils,
     RegisteredCanvasComponents,
-    SegmentOptions,
     setMemoryContainer,
-    timeline,
 } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
+import { SegmentOptions, timeline } from "@drincs/pixi-vn/motion";
 import type { AnimationPlaybackControlsWithThen, SequenceOptions } from "motion";
 import { ContainerChild, ContainerEvents, EventEmitter, ObservablePoint, PointData } from "pixi.js";
 import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
