@@ -3,9 +3,11 @@
 ![pixi-vn-cover](https://github.com/user-attachments/assets/6d0edd5e-4ff6-414b-9c27-348e70f866b1)
 
 <p align="center">
-  <a href="https://npmjs.com/package/@drincs/pixi-vn-spine"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine.svg" alt="npm package"></a>
-  <a href="https://npmjs.com/package/@drincs/pixi-vn-spine"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads"></a>
-  <a href="https://discord.gg/E95FZWakzp"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501"></a>
+  <a href="https://www.npmjs.com/package/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine?label=version" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads per month"></a>
+  <a target="_blank" href="https://www.jsdelivr.com/package/npm/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img alt="jsDelivr hits (npm)" src="https://img.shields.io/jsdelivr/npm/hm/@drincs/pixi-vn-spine?logo=jsdeliver"></a>
+  <a href="https://www.npmjs.com/package/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img alt="NPM License" src="https://img.shields.io/npm/l/@drincs/pixi-vn-spine"></a>
+  <a target="_blank" href="https://discord.gg/E95FZWakzp" rel="noopener noreferrer nofollow"><img alt="Discord" src="https://img.shields.io/discord/1263071210011496501?color=7289da&label=discord"></a>
 </p>
 
 `@drincs/pixi-vn-spine` is a lightweight wrapper around `@esotericsoftware/spine-pixi-v8`, designed specifically to integrate **Spine 2D** components into **Pixi’VN** projects.
