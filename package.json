@@ -10,10 +10,11 @@
     "dist"
   ],
   "scripts": {
-    "build:post": "node scripts/replace-pixi.js",
-    "build:submodules": "tsup --config tsup.submodules.config.ts",
-    "build:index": "tsup --config tsup.config.ts",
-    "build": "npm run build:submodules && npm run build:index",
+    "dev": "tsup --watch",
+    "build": "tsup --config tsup.config.ts",
+    "lint": "biome lint",
+    "check": "biome check",
+    "format": "biome format --write",
     "test": "vitest"
   },
   "exports": {
@@ -49,17 +50,17 @@
   "homepage": "https://pixi-vn.web.app/start/canvas-spine2d",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "devDependencies": {
-    "@types/crypto-js": "^4.2.2",
-    "crypto-js": "^4.2.0",
-    "jsdom": "^27.0.0",
+    "@biomejs/biome": "^2.4.12",
+    "jsdom": "^29.0.2",
     "ts-node": "^10.9.2",
-    "tsup": "^8.5.0",
-    "typescript": "^5.9.3"
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vite-tsconfig-paths": "^6.1.1"
   },
   "dependencies": {
-    "@esotericsoftware/spine-core": "^4.2.102",
-    "@esotericsoftware/spine-pixi-v8": "^4.2.102",
-    "vitest": "^4.0.18"
+    "@esotericsoftware/spine-core": "^4.2.0",
+    "@esotericsoftware/spine-pixi-v8": "^4.2.0",
+    "vitest": "^4.1.4"
   },
   "peerDependencies": {
     "@drincs/pixi-vn": ">=1.5.13",

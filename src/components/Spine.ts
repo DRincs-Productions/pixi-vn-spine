@@ -51,7 +51,11 @@ const CANVAS_SPINE_ID = "Spine";
  */
 export default class Spine
     extends CoreSpine
-    implements CanvasBaseItem<SpineMemory>, AnchorExtension, ListenerExtension, AdditionalPositionsExtension
+    implements
+        CanvasBaseItem<SpineMemory>,
+        AnchorExtension,
+        ListenerExtension,
+        AdditionalPositionsExtension
 {
     constructor(options: SpineOptions) {
         options = analizePositionsExtensionProps(options as any);
@@ -66,12 +70,23 @@ export default class Spine
             align = options.align;
             delete options.align;
         }
-        if (options && "percentagePosition" in options && options?.percentagePosition !== undefined) {
+        if (
+            options &&
+            "percentagePosition" in options &&
+            options?.percentagePosition !== undefined
+        ) {
             percentagePosition = options.percentagePosition;
             delete options.percentagePosition;
         }
 
-        const { skeleton: skeletonOpt, atlas, darkTint, autoUpdate, scale, ...containerOptions } = options;
+        const {
+            skeleton: skeletonOpt,
+            atlas,
+            darkTint,
+            autoUpdate,
+            scale,
+            ...containerOptions
+        } = options;
         const spineCore = CoreSpine.from({
             skeleton: skeletonOpt,
             atlas,
@@ -189,13 +204,15 @@ export default class Spine
             },
             currentSkin: this.skeleton.skin?.name,
             sequenceTimelines: Object.fromEntries(
-                Object.entries(this.sequenceTimelines).map(([trackIndex, { sequence, options, timeline }]) => [
-                    trackIndex,
-                    {
-                        sequence,
-                        options,
-                    },
-                ]),
+                Object.entries(this.sequenceTimelines).map(
+                    ([trackIndex, { sequence, options, timeline }]) => [
+                        trackIndex,
+                        {
+                            sequence,
+                            options,
+                        },
+                    ],
+                ),
             ),
         };
     }
@@ -229,7 +246,10 @@ export default class Spine
         },
     ) {
         const { loop, completeOnContinue = true, trackIndex } = options;
-        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || { spine: this, tracks: [] };
+        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || {
+            spine: this,
+            tracks: [],
+        };
         if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
             mem.tracks.push(trackIndex);
             CompleteOnContinueTracks.tracks.set(`${this.uid}`, mem);
@@ -271,7 +291,10 @@ export default class Spine
     ) {
         const { loop, delay, trackIndex = this.state.tracks.length, completeOnContinue } = options;
         const milliDelay = delay ? delay * 1000 : 0;
-        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || { spine: this, tracks: [] };
+        const mem = CompleteOnContinueTracks.tracks.get(`${this.uid}`) || {
+            spine: this,
+            tracks: [],
+        };
         if (completeOnContinue && !mem.tracks.includes(trackIndex)) {
             mem.tracks.push(trackIndex);
             CompleteOnContinueTracks.tracks.set(`${this.uid}`, mem);
@@ -320,7 +343,11 @@ export default class Spine
         }
         const { trackIndex = this.state.tracks.length, completeOnContinue = true } = options;
         this.clearTrack(trackIndex);
-        const timeline = this.setTrackSequence(sequence, { ...options, trackIndex, completeOnContinue });
+        const timeline = this.setTrackSequence(sequence, {
+            ...options,
+            trackIndex,
+            completeOnContinue,
+        });
         this.sequenceTimelines[trackIndex] = {
             sequence,
             options,
@@ -341,7 +368,9 @@ export default class Spine
             const [currentAnimationName, animOptions] = item;
             const currentAnimation = this.skeleton.data.findAnimation(currentAnimationName);
             if (!currentAnimation) {
-                logger.warn(`Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`);
+                logger.warn(
+                    `Animation ${currentAnimationName} not found in skeleton ${this.skeletonAlias}`,
+                );
                 return;
             }
             const {
@@ -356,7 +385,11 @@ export default class Spine
                 delay: delay,
                 duration: duration,
                 onPlay: () =>
-                    this.addAnimation(currentAnimationName, { ...animOptions, trackIndex, completeOnContinue }),
+                    this.addAnimation(currentAnimationName, {
+                        ...animOptions,
+                        trackIndex,
+                        completeOnContinue,
+                    }),
                 onComplete: () => this.clearTrack(trackIndex),
             });
         });
@@ -394,7 +427,11 @@ export default class Spine
 
     /** ListenerExtension */
     readonly onEventsHandlers: OnEventsHandlers = {};
-    override on<T extends keyof ContainerEvents<ContainerChild> | keyof { [K: symbol]: any; [K: {} & string]: any }>(
+    override on<
+        T extends
+            | keyof ContainerEvents<ContainerChild>
+            | keyof { [K: symbol]: any; [K: {} & string]: any },
+    >(
         event: T,
         fn: (
             ...args: [
@@ -402,7 +439,8 @@ export default class Spine
                     ContainerEvents<ContainerChild> & { [K: symbol]: any; [K: {} & string]: any }
                 >[Extract<
                     T,
-                    keyof ContainerEvents<ContainerChild> | keyof { [K: symbol]: any; [K: {} & string]: any }
+                    | keyof ContainerEvents<ContainerChild>
+                    | keyof { [K: symbol]: any; [K: {} & string]: any }
                 >],
                 typeof this,
             ]
@@ -571,7 +609,11 @@ export default class Spine
         if (this._align) {
             return { x: this._align.x || 0, y: this._align.y || 0, type: "align" };
         } else if (this._percentagePosition) {
-            return { x: this._percentagePosition.x || 0, y: this._percentagePosition.y || 0, type: "percentage" };
+            return {
+                x: this._percentagePosition.x || 0,
+                y: this._percentagePosition.y || 0,
+                type: "percentage",
+            };
         }
         return { x: this.x, y: this.y, type: "pixel" };
     }
@@ -608,10 +650,16 @@ export default class Spine
             }
         } else if (this._percentagePosition) {
             if (this._percentagePosition.x !== undefined) {
-                super.x = PropsUtils.calculatePositionByPercentagePosition("width", this._percentagePosition.x);
+                super.x = PropsUtils.calculatePositionByPercentagePosition(
+                    "width",
+                    this._percentagePosition.x,
+                );
             }
             if (this._percentagePosition.y !== undefined) {
-                super.y = PropsUtils.calculatePositionByPercentagePosition("height", this._percentagePosition.y);
+                super.y = PropsUtils.calculatePositionByPercentagePosition(
+                    "height",
+                    this._percentagePosition.y,
+                );
             }
         }
     }
@@ -662,15 +710,18 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
         end() {
             memory.accessible !== undefined && (element.accessible = memory.accessible);
             memory.autoUpdate !== undefined && (element.autoUpdate = memory.autoUpdate);
-            memory.accessibleChildren !== undefined && (element.accessibleChildren = memory.accessibleChildren);
+            memory.accessibleChildren !== undefined &&
+                (element.accessibleChildren = memory.accessibleChildren);
             memory.accessibleHint !== undefined && (element.accessibleHint = memory.accessibleHint);
             memory.accessiblePointerEvents !== undefined &&
                 (element.accessiblePointerEvents = memory.accessiblePointerEvents);
             memory.accessibleText !== undefined && element;
-            memory.accessibleTitle !== undefined && (element.accessibleTitle = memory.accessibleTitle);
+            memory.accessibleTitle !== undefined &&
+                (element.accessibleTitle = memory.accessibleTitle);
             memory.accessibleType !== undefined && element;
             memory.cullable !== undefined && (element.cullable = memory.cullable);
-            memory.cullableChildren !== undefined && (element.cullableChildren = memory.cullableChildren);
+            memory.cullableChildren !== undefined &&
+                (element.cullableChildren = memory.cullableChildren);
             memory.label !== undefined && (element.label = memory.label);
             if (memory.origin !== undefined) {
                 if (typeof memory.origin === "number") {
@@ -679,12 +730,15 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
                     element.origin.set(memory.origin.x, memory.origin.y);
                 }
             }
-            memory.sortableChildren !== undefined && (element.sortableChildren = memory.sortableChildren);
+            memory.sortableChildren !== undefined &&
+                (element.sortableChildren = memory.sortableChildren);
             memory.zIndex !== undefined && (element.zIndex = memory.zIndex);
             memory.sortDirty !== undefined && (element.sortDirty = memory.sortDirty);
             memory.tabIndex !== undefined && (element.tabIndex = memory.tabIndex);
             // "anchor" in memory && memory.anchor !== undefined && (element.anchor = memory.anchor as number | PointData);
-            "align" in memory && memory.align !== undefined && (element.align = memory.align as Partial<PointData>);
+            "align" in memory &&
+                memory.align !== undefined &&
+                (element.align = memory.align as Partial<PointData>);
             "percentagePosition" in memory &&
                 memory.percentagePosition !== undefined &&
                 (element.percentagePosition = memory.percentagePosition as Partial<PointData>);
