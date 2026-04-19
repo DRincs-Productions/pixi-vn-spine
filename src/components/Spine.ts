@@ -12,7 +12,6 @@ import {
     createExportableElement,
     type ListenerExtension,
     type OnEventsHandlers,
-    PixiError,
     CanvasPropertyUtility as PropsUtils,
     RegisteredCanvasComponents,
     setMemoryContainer,
@@ -65,24 +64,15 @@ export default class Spine
 {
     constructor(options: SpineOptions) {
         const {
-            align,
-            percentagePosition,
-            anchor,
-
             skeleton: skeletonOpt,
             atlas,
             darkTint,
             autoUpdate,
             scale,
             ...containerOptions
-        } = analizePositionsExtensionProps(options) || {};
-
-        if (!skeletonOpt || !atlas) {
-            throw new PixiError(
-                "invalid_usage",
-                `Spine component requires both skeleton and atlas options. Received skeleton: ${skeletonOpt}, atlas: ${atlas}`,
-            );
-        }
+        } = options;
+        const { align, percentagePosition, anchor, ...restOptions } =
+            analizePositionsExtensionProps(containerOptions) || {};
 
         const spineCore = CoreSpine.from({
             skeleton: skeletonOpt,
@@ -95,7 +85,7 @@ export default class Spine
         super({
             skeletonData: skeleton.data,
             ...props,
-            ...containerOptions,
+            ...restOptions,
         });
         this.skeletonAlias = options.skeleton;
         this.atlasAlias = options.atlas;
