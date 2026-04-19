@@ -1,14 +1,14 @@
-import {
+import type {
     AdditionalPositionsExtensionProps,
     AnchorExtensionProps,
     CanvasBaseItemMemory,
     ListenerExtensionMemory,
 } from "@drincs/pixi-vn";
-import { SpineOptions as SpineOptionsCore } from "@drincs/pixi-vn-spine/core";
+import type { SpineOptions as SpineOptionsCore } from "@drincs/pixi-vn-spine/core";
 import type { SequenceOptions } from "motion";
-import SpineOptions from "./SpineOptions";
-import SpineSequenceOptions from "./SpineSequenceOptions";
-import TrackMemory from "./TrackMemory";
+import type SpineOptions from "./SpineOptions";
+import type SpineSequenceOptions from "./SpineSequenceOptions";
+import type TrackMemory from "./TrackMemory";
 
 interface MemoryCore
     extends Omit<

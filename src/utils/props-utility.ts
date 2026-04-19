@@ -1,5 +1,5 @@
+import type { Spine } from "@/components";
 import { CanvasPropertyUtility as PropsUtils } from "@drincs/pixi-vn";
-import type { Spine } from "../components";
 
 export function getSuperPivot(spine: Spine) {
     const pivot = PropsUtils.getSuperPoint(spine.pivot, spine.angle);

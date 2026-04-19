@@ -1,4 +1,4 @@
-import { AnimationOptionsCommon } from "@drincs/pixi-vn/motion";
+import type { AnimationOptionsCommon } from "@drincs/pixi-vn/motion";
 
 type SpineSequenceOptions = Pick<AnimationOptionsCommon, "duration"> & {
     /**

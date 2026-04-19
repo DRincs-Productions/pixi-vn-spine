@@ -1,23 +1,29 @@
 import {
-    AdditionalPositionsExtension,
+    type AdditionalPositionsExtension,
     addListenerHandler,
     analizePositionsExtensionProps,
-    AnchorExtension,
+    type AnchorExtension,
     Assets,
-    CanvasBaseItem,
+    type CanvasBaseItem,
     createExportableElement,
-    ListenerExtension,
-    OnEventsHandlers,
+    type ListenerExtension,
+    type OnEventsHandlers,
     CanvasPropertyUtility as PropsUtils,
     RegisteredCanvasComponents,
     setMemoryContainer,
 } from "@drincs/pixi-vn";
 import { Spine as CoreSpine } from "@drincs/pixi-vn-spine/core";
-import { SegmentOptions, timeline } from "@drincs/pixi-vn/motion";
+import { type SegmentOptions, timeline } from "@drincs/pixi-vn/motion";
 import type { AnimationPlaybackControlsWithThen, SequenceOptions } from "motion";
-import { ContainerChild, ContainerEvents, EventEmitter, ObservablePoint, PointData } from "pixi.js";
-import { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
-import TrackMemory from "../interfaces/TrackMemory";
+import type {
+    ContainerChild,
+    ContainerEvents,
+    EventEmitter,
+    ObservablePoint,
+    PointData,
+} from "pixi.js";
+import type { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
+import type TrackMemory from "../interfaces/TrackMemory";
 import { CompleteOnContinueTracks } from "../memory/CompleteOnContinueTracks";
 import { logger } from "../utils/log-utility";
 import { getSuperPivot } from "../utils/props-utility";
@@ -59,9 +65,9 @@ export default class Spine
 {
     constructor(options: SpineOptions) {
         options = analizePositionsExtensionProps(options as any);
-        let align = undefined;
-        let percentagePosition = undefined;
-        let anchor = undefined;
+        let align;
+        let percentagePosition;
+        let anchor;
         if (options && "anchor" in options && options?.anchor !== undefined) {
             anchor = options.anchor;
             delete options.anchor;
@@ -455,8 +461,8 @@ export default class Spine
     /** Anchor */
     private _anchor?: PointData;
     get anchor(): PointData {
-        let x = super.pivot.x / this.width;
-        let y = super.pivot.y / this.height;
+        const x = super.pivot.x / this.width;
+        const y = super.pivot.y / this.height;
         return { x, y };
     }
     set anchor(value: PointData | number) {
@@ -495,8 +501,8 @@ export default class Spine
         this.reloadPosition();
     }
     get align() {
-        let superPivot = getSuperPivot(this);
-        let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
+        const superPivot = getSuperPivot(this);
+        const superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
         return {
             x: PropsUtils.calculateAlignByPosition(
                 "width",
@@ -525,8 +531,8 @@ export default class Spine
         this.reloadPosition();
     }
     get xAlign() {
-        let superPivot = getSuperPivot(this);
-        let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
+        const superPivot = getSuperPivot(this);
+        const superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
         return PropsUtils.calculateAlignByPosition(
             "width",
             this.x,
@@ -545,8 +551,8 @@ export default class Spine
         this.reloadPosition();
     }
     get yAlign() {
-        let superPivot = getSuperPivot(this);
-        let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
+        const superPivot = getSuperPivot(this);
+        const superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
         return PropsUtils.calculateAlignByPosition(
             "height",
             this.y,
@@ -628,8 +634,8 @@ export default class Spine
     }
     protected reloadPosition() {
         if (this._align) {
-            let superPivot = getSuperPivot(this);
-            let superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
+            const superPivot = getSuperPivot(this);
+            const superScale = PropsUtils.getSuperPoint(this.scale, this.angle);
             if (this._align.x !== undefined) {
                 super.x = PropsUtils.calculatePositionByAlign(
                     "width",

@@ -1,8 +1,8 @@
+import type { Spine } from "@/components";
 import { CachedMap } from "@drincs/pixi-vn";
-import type { Spine } from "../components";
 
-export class CompleteOnContinueTracks {
-    static tracks: CachedMap<
+export namespace CompleteOnContinueTracks {
+    export const tracks: CachedMap<
         string,
         {
             spine: Spine;
