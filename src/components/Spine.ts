@@ -71,8 +71,8 @@ export default class Spine
             scale,
             ...containerOptions
         } = options;
-        const { align, percentagePosition, anchor, ...restOptions } =
-            analizePositionsExtensionProps(containerOptions) || {};
+        const { anchor, align, percentagePosition, ...restOptions } =
+            analizePositionsExtensionProps(containerOptions as any);
 
         const spineCore = CoreSpine.from({
             skeleton: skeletonOpt,
