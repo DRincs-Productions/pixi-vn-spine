@@ -202,7 +202,7 @@ export default class Spine
             currentSkin: this.skeleton.skin?.name,
             sequenceTimelines: Object.fromEntries(
                 Object.entries(this.sequenceTimelines).map(
-                    ([trackIndex, { sequence, options, timeline }]) => [
+                    ([trackIndex, { sequence, options }]) => [
                         trackIndex,
                         {
                             sequence,
@@ -701,9 +701,10 @@ RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
     },
 });
 
-async function setMemorySpine(element: Spine, memory: SpineMemory) {
-    memory = analizePositionsExtensionProps(memory)!;
+async function setMemorySpine(element: Spine, param: SpineMemory) {
+    const memory = analizePositionsExtensionProps(param);
     element.state.clearTracks();
+    if (!memory) return;
     memory.currentSkin !== undefined && element.setSkin(memory.currentSkin);
     await setMemoryContainer(element, memory, {
         end() {
