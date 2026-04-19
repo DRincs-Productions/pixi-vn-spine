@@ -1,3 +1,7 @@
+import type { SpineMemory, SpineOptions, SpineSequenceOptions, TrackMemory } from "@/interfaces";
+import { CompleteOnContinueTracks } from "@/memory/CompleteOnContinueTracks";
+import { logger } from "@/utils/log-utility";
+import { getSuperPivot } from "@/utils/props-utility";
 import {
     type AdditionalPositionsExtension,
     addListenerHandler,
@@ -8,6 +12,7 @@ import {
     createExportableElement,
     type ListenerExtension,
     type OnEventsHandlers,
+    PixiError,
     CanvasPropertyUtility as PropsUtils,
     RegisteredCanvasComponents,
     setMemoryContainer,
@@ -22,11 +27,6 @@ import type {
     ObservablePoint,
     PointData,
 } from "pixi.js";
-import type { SpineMemory, SpineOptions, SpineSequenceOptions } from "../interfaces";
-import type TrackMemory from "../interfaces/TrackMemory";
-import { CompleteOnContinueTracks } from "../memory/CompleteOnContinueTracks";
-import { logger } from "../utils/log-utility";
-import { getSuperPivot } from "../utils/props-utility";
 
 const CANVAS_SPINE_ID = "Spine";
 
@@ -64,35 +64,26 @@ export default class Spine
         AdditionalPositionsExtension
 {
     constructor(options: SpineOptions) {
-        options = analizePositionsExtensionProps(options as any);
-        let align;
-        let percentagePosition;
-        let anchor;
-        if (options && "anchor" in options && options?.anchor !== undefined) {
-            anchor = options.anchor;
-            delete options.anchor;
-        }
-        if (options && "align" in options && options?.align !== undefined) {
-            align = options.align;
-            delete options.align;
-        }
-        if (
-            options &&
-            "percentagePosition" in options &&
-            options?.percentagePosition !== undefined
-        ) {
-            percentagePosition = options.percentagePosition;
-            delete options.percentagePosition;
-        }
-
         const {
+            align,
+            percentagePosition,
+            anchor,
+
             skeleton: skeletonOpt,
             atlas,
             darkTint,
             autoUpdate,
             scale,
             ...containerOptions
-        } = options;
+        } = analizePositionsExtensionProps(options) || {};
+
+        if (!skeletonOpt || !atlas) {
+            throw new PixiError(
+                "invalid_usage",
+                `Spine component requires both skeleton and atlas options. Received skeleton: ${skeletonOpt}, atlas: ${atlas}`,
+            );
+        }
+
         const spineCore = CoreSpine.from({
             skeleton: skeletonOpt,
             atlas,
@@ -196,7 +187,7 @@ export default class Spine
             darkTint: this.darkTintCore,
             state: {
                 tracks: this.state.tracks.map((track) => {
-                    if (!track || !track.animation) {
+                    if (!track?.animation) {
                         return null;
                     }
                     const res: TrackMemory = {
@@ -405,7 +396,9 @@ export default class Spine
      * Removes all animations from all tracks, leaving skeletons in their current pose.
      */
     clearTracks() {
-        Object.values(this.sequenceTimelines).forEach(({ timeline }) => timeline.stop());
+        Object.values(this.sequenceTimelines).forEach(({ timeline }) => {
+            timeline.stop();
+        });
         this.sequenceTimelines = {};
         this.state.clearTracks();
     }
@@ -490,13 +483,13 @@ export default class Spine
     private _align: Partial<PointData> | undefined = undefined;
     set align(value: Partial<PointData> | number) {
         this._percentagePosition = undefined;
-        this._align === undefined && (this._align = {});
+        if (this._align === undefined) this._align = {};
         if (typeof value === "number") {
             this._align.x = value;
             this._align.y = value;
         } else {
-            value.x !== undefined && (this._align.x = value.x);
-            value.y !== undefined && (this._align.y = value.y);
+            if (value.x !== undefined) this._align.x = value.x;
+            if (value.y !== undefined) this._align.y = value.y;
         }
         this.reloadPosition();
     }
@@ -526,7 +519,7 @@ export default class Spine
         if (this._percentagePosition) {
             this._percentagePosition = undefined;
         }
-        this._align === undefined && (this._align = {});
+        if (this._align === undefined) this._align = {};
         this._align.x = value;
         this.reloadPosition();
     }
@@ -546,7 +539,7 @@ export default class Spine
         if (this._percentagePosition) {
             this._percentagePosition = undefined;
         }
-        this._align === undefined && (this._align = {});
+        if (this._align === undefined) this._align = {};
         this._align.y = value;
         this.reloadPosition();
     }
@@ -565,13 +558,13 @@ export default class Spine
     private _percentagePosition: Partial<PointData> | undefined = undefined;
     set percentagePosition(value: Partial<PointData> | number) {
         this._align = undefined;
-        this._percentagePosition === undefined && (this._percentagePosition = {});
+        if (this._percentagePosition === undefined) this._percentagePosition = {};
         if (typeof value === "number") {
             this._percentagePosition.x = value;
             this._percentagePosition.y = value;
         } else {
-            value.x !== undefined && (this._percentagePosition.x = value.x);
-            value.y !== undefined && (this._percentagePosition.y = value.y);
+            if (value.x !== undefined) this._percentagePosition.x = value.x;
+            if (value.y !== undefined) this._percentagePosition.y = value.y;
         }
         this.reloadPosition();
     }
@@ -585,7 +578,7 @@ export default class Spine
         if (this._align) {
             this._align = undefined;
         }
-        this._percentagePosition === undefined && (this._percentagePosition = {});
+        if (this._percentagePosition === undefined) this._percentagePosition = {};
         this._percentagePosition.x = _value;
         this.reloadPosition();
     }
@@ -596,7 +589,7 @@ export default class Spine
         if (this._align) {
             this._align = undefined;
         }
-        this._percentagePosition === undefined && (this._percentagePosition = {});
+        if (this._percentagePosition === undefined) this._percentagePosition = {};
         this._percentagePosition.y = _value;
         this.reloadPosition();
     }
@@ -714,21 +707,21 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
     memory.currentSkin !== undefined && element.setSkin(memory.currentSkin);
     await setMemoryContainer(element, memory, {
         end() {
-            memory.accessible !== undefined && (element.accessible = memory.accessible);
-            memory.autoUpdate !== undefined && (element.autoUpdate = memory.autoUpdate);
-            memory.accessibleChildren !== undefined &&
-                (element.accessibleChildren = memory.accessibleChildren);
-            memory.accessibleHint !== undefined && (element.accessibleHint = memory.accessibleHint);
-            memory.accessiblePointerEvents !== undefined &&
-                (element.accessiblePointerEvents = memory.accessiblePointerEvents);
-            memory.accessibleText !== undefined && element;
-            memory.accessibleTitle !== undefined &&
-                (element.accessibleTitle = memory.accessibleTitle);
-            memory.accessibleType !== undefined && element;
-            memory.cullable !== undefined && (element.cullable = memory.cullable);
-            memory.cullableChildren !== undefined &&
-                (element.cullableChildren = memory.cullableChildren);
-            memory.label !== undefined && (element.label = memory.label);
+            if (memory.accessible !== undefined) element.accessible = memory.accessible;
+            if (memory.autoUpdate !== undefined) element.autoUpdate = memory.autoUpdate;
+            if (memory.accessibleChildren !== undefined)
+                element.accessibleChildren = memory.accessibleChildren;
+            if (memory.accessibleHint !== undefined) element.accessibleHint = memory.accessibleHint;
+            if (memory.accessiblePointerEvents !== undefined)
+                element.accessiblePointerEvents = memory.accessiblePointerEvents;
+            if (memory.accessibleText !== undefined) element.accessibleText = memory.accessibleText;
+            if (memory.accessibleTitle !== undefined)
+                element.accessibleTitle = memory.accessibleTitle;
+            if (memory.accessibleType !== undefined) element.accessibleType = memory.accessibleType;
+            if (memory.cullable !== undefined) element.cullable = memory.cullable;
+            if (memory.cullableChildren !== undefined)
+                element.cullableChildren = memory.cullableChildren;
+            if (memory.label !== undefined) element.label = memory.label;
             if (memory.origin !== undefined) {
                 if (typeof memory.origin === "number") {
                     element.origin.set(memory.origin, memory.origin);
@@ -736,18 +729,16 @@ async function setMemorySpine(element: Spine, memory: SpineMemory) {
                     element.origin.set(memory.origin.x, memory.origin.y);
                 }
             }
-            memory.sortableChildren !== undefined &&
-                (element.sortableChildren = memory.sortableChildren);
-            memory.zIndex !== undefined && (element.zIndex = memory.zIndex);
-            memory.sortDirty !== undefined && (element.sortDirty = memory.sortDirty);
-            memory.tabIndex !== undefined && (element.tabIndex = memory.tabIndex);
+            if (memory.sortableChildren !== undefined)
+                element.sortableChildren = memory.sortableChildren;
+            if (memory.zIndex !== undefined) element.zIndex = memory.zIndex;
+            if (memory.sortDirty !== undefined) element.sortDirty = memory.sortDirty;
+            if (memory.tabIndex !== undefined) element.tabIndex = memory.tabIndex;
             // "anchor" in memory && memory.anchor !== undefined && (element.anchor = memory.anchor as number | PointData);
-            "align" in memory &&
-                memory.align !== undefined &&
-                (element.align = memory.align as Partial<PointData>);
-            "percentagePosition" in memory &&
-                memory.percentagePosition !== undefined &&
-                (element.percentagePosition = memory.percentagePosition as Partial<PointData>);
+            if ("align" in memory && memory.align !== undefined)
+                element.align = memory.align as Partial<PointData>;
+            if ("percentagePosition" in memory && memory.percentagePosition !== undefined)
+                element.percentagePosition = memory.percentagePosition as Partial<PointData>;
         },
     });
     const indexToIgnore: number[] = [];
