@@ -19,6 +19,7 @@
     "check": "biome check",
     "format": "biome format --write",
     "test": "vitest",
+    "docs": "typedoc",
     "playground": "npm run build && npm run dev --workspace=playground"
   },
   "exports": {
