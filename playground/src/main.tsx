@@ -1,4 +1,5 @@
 import { Assets, Container, Game, canvas, sound } from "@drincs/pixi-vn";
+import "@drincs/pixi-vn-spine";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
