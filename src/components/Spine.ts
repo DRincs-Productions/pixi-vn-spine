@@ -407,8 +407,8 @@ export default class Spine
      */
     setSkin(skinName: string) {
         try {
-            this.skeleton.setSkinByName(skinName);
-            this.skeleton.setSlotsToSetupPose();
+            this.skeleton.setSkin(skinName);
+            this.skeleton.setupPoseSlots();
         } catch (e) {
             logger.error(`Failed to set skin: ${skinName}`, e);
         }
