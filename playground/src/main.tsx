@@ -1,4 +1,4 @@
-import { Container, Game, canvas, sound } from "@drincs/pixi-vn";
+import { Assets, Container, Game, canvas, sound } from "@drincs/pixi-vn";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 
@@ -29,5 +29,16 @@ Game.init(body, {}).then(() => {
   }
   const reactRoot = createRoot(htmlLayout);
 
-  reactRoot.render(<App />);
+  Assets.load([
+    {
+      alias: "spineboySkeleton",
+      src: "https://raw.githubusercontent.com/pixijs/spine-v8/main/examples/assets/spineboy-pro.skel",
+    },
+    {
+      alias: "spineboyAtlas",
+      src: "https://raw.githubusercontent.com/pixijs/spine-v8/main/examples/assets/spineboy-pma.atlas",
+    },
+  ]).then(() => {
+    reactRoot.render(<App />);
+  });
 });
