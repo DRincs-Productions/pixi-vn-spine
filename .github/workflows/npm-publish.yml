@@ -60,10 +60,21 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v3
+      - name: Read peer dependency versions
+        id: deps
+        run: |
+          echo "pixi_vn=$(node -p "require('./package.json').peerDependencies['@drincs/pixi-vn']")" >> "$GITHUB_OUTPUT"
+          echo "spine_core=$(node -p "require('./package.json').peerDependencies['@esotericsoftware/spine-core']")" >> "$GITHUB_OUTPUT"
+          echo "spine_pixi_v8=$(node -p "require('./package.json').peerDependencies['@esotericsoftware/spine-pixi-v8']")" >> "$GITHUB_OUTPUT"
       - uses: ncipollo/release-action@v1
         with:
           body: |
             Release ${{ github.ref }}
+
+            **Peer dependencies:**
+            - @drincs/pixi-vn: ${{ steps.deps.outputs.pixi_vn }}
+            - @esotericsoftware/spine-core: ${{ steps.deps.outputs.spine_core }}
+            - @esotericsoftware/spine-pixi-v8: ${{ steps.deps.outputs.spine_pixi_v8 }}
   deploy-docs:
     name: Deploy Docs to Wiki
     runs-on: ubuntu-latest
