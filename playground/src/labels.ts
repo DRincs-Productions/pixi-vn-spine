@@ -48,7 +48,7 @@ export const sequenceLabel = newLabel("sequence", [
             xAlign: 0.5,
             yAlign: 1,
         });
-        spine.playSequence([["idle", { loop: true, duration: 2 }], "jump"], {
+        spine.playSequence([["idle", { loop: true, duration: 0.5 }], "jump"], {
             repeat: Infinity,
         });
         canvas.add("spine", spine);

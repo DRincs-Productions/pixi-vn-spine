@@ -335,6 +335,7 @@ export default class Spine
             trackIndex,
             completeOnContinue,
         });
+        timeline.then(() => this.clearTrack(trackIndex));
         this.sequenceTimelines[trackIndex] = {
             sequence,
             options,
@@ -377,7 +378,6 @@ export default class Spine
                         trackIndex,
                         completeOnContinue,
                     }),
-                onComplete: () => this.clearTrack(trackIndex),
             });
         });
         return timeline(results, { ...rest });
