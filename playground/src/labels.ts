@@ -13,6 +13,7 @@ export const baseLabel = newLabel("base", [
         spine.addAnimation("idle", { loop: true });
         canvas.add("spine", spine);
     },
+    () => {}
 ]);
 
 export const motionLabel = newLabel("motion", [
@@ -37,6 +38,7 @@ export const motionLabel = newLabel("motion", [
             { repeat: Infinity },
         );
     },
+    () => {}
 ]);
 
 export const sequenceLabel = newLabel("sequence", [
@@ -53,4 +55,5 @@ export const sequenceLabel = newLabel("sequence", [
         });
         canvas.add("spine", spine);
     },
+    () => {}
 ]);

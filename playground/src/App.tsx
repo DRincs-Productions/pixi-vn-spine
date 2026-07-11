@@ -1,4 +1,4 @@
-import { canvas, Game, narration } from "@drincs/pixi-vn";
+import { canvas, Game, narration, stepHistory } from "@drincs/pixi-vn";
 import { useEffect, useState } from "react";
 import { baseLabel, motionLabel, sequenceLabel } from "./labels";
 
@@ -6,6 +6,7 @@ const LABELS = [baseLabel, motionLabel, sequenceLabel];
 
 export default function App() {
   const [running, setRunning] = useState(false);
+  const [, forceUpdate] = useState(0);
 
   useEffect(() => {
     Game.onEnd(() => {
@@ -17,16 +18,31 @@ export default function App() {
   async function selectLabel(label: (typeof LABELS)[number]) {
     setRunning(true);
     await Game.start(label, {});
+    forceUpdate((n) => n + 1);
+  }
+
+  async function handleContinue() {
+    await narration.continue({});
+    forceUpdate((n) => n + 1);
+  }
+
+  async function handleBack() {
+    await stepHistory.back({});
+    forceUpdate((n) => n + 1);
   }
 
   if (running) {
     return (
       <div>
+        <button style={{ pointerEvents: "auto" }} onClick={handleContinue}>
+          Continue
+        </button>
         <button
           style={{ pointerEvents: "auto" }}
-          onClick={() => narration.continue({})}
+          onClick={handleBack}
+          disabled={!stepHistory.canGoBack}
         >
-          Continue
+          Back
         </button>
       </div>
     );
