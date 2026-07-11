@@ -8,7 +8,10 @@ if (!body) {
   throw new Error("body element not found");
 }
 
-Game.init(body, {}).then(() => {
+Game.init(body, {
+  height: 1080,
+  width: 1920,
+}).then(() => {
   // Pixi.JS UI Layer
   canvas.addLayer("ui", new Container());
 
