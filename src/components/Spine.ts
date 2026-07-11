@@ -62,6 +62,10 @@ export default class Spine
         ListenerExtension,
         AdditionalPositionsExtension
 {
+    /**
+     * @param options Options used to configure the Spine skeleton (skeleton/atlas aliases, scale, dark tint, auto update)
+     * plus the standard {@link CanvasBaseItem} container options (anchor, align, percentagePosition, etc.).
+     */
     constructor(options: SpineOptions) {
         const {
             skeleton: skeletonOpt,
@@ -100,9 +104,20 @@ export default class Spine
         }
     }
     readonly pixivnId: string = CANVAS_SPINE_ID;
+    /** The asset alias of the skeleton this component was created with. */
     readonly skeletonAlias: SpineOptions["skeleton"];
+    /** The asset alias of the atlas this component was created with. */
     readonly atlasAlias: SpineOptions["atlas"];
+    /**
+     * Whether the dark tint renderer is used for this skeleton. If `true`, uses the dark tint renderer; if
+     * `false`, uses the default pixi renderer; if `undefined`, the dark tint renderer is used only when at
+     * least one slot has tint black.
+     */
     readonly darkTintCore: SpineOptions["darkTint"];
+    /**
+     * Tracks the running {@link playSequence} timelines, keyed by track index, so they can be
+     * inspected, stopped ({@link clearTrack}, {@link clearTracks}) or serialized ({@link memory}).
+     */
     private sequenceTimelines: {
         [track: number]: {
             sequence: ([string, SpineSequenceOptions] | string)[];
@@ -207,10 +222,11 @@ export default class Spine
         this.reloadPosition();
     }
     /**
-     * Set a current track with the given animation configuration.
-     * @param trackIndex The track index to set the animation on.
+     * Sets the current animation on a track, replacing whatever is currently playing on it. Use
+     * {@link addAnimation} instead to queue an animation after the current one.
      * @param animationName The name of the animation to set.
      * @param options Additional options for setting the animation.
+     * @returns The `TrackEntry` for the animation, or `null` if the animation could not be found.
      */
     setAnimation(
         animationName: string,
@@ -244,9 +260,11 @@ export default class Spine
         return this.state.setAnimation(trackIndex, animationName, loop);
     }
     /**
-     * Add an animation to a track with the given animation configuration.
-     * @param animationName The name of the animation to play.
+     * Queues an animation to play on a track after the current animation (if any) completes. Use
+     * {@link setAnimation} instead to replace the track's current animation immediately.
+     * @param animationName The name of the animation to queue.
      * @param options Additional options for playing the track.
+     * @returns The `TrackEntry` for the queued animation, or `null` if the animation could not be found.
      */
     addAnimation(
         animationName: string,
@@ -289,12 +307,16 @@ export default class Spine
         return this.state.addAnimation(trackIndex, animationName, loop, milliDelay);
     }
     /**
-     * Play a sequence of animations on a track, with the given animation configuration.
+     * Plays a sequence of animations on a track, one after another, driven by a `motion` timeline. Any
+     * animation currently playing on the track is cleared first. The sequence is tracked in
+     * {@link sequenceTimelines} (and thus included in {@link memory}) until it completes, at which point
+     * the track is cleared automatically.
      * @param sequence The sequence of animations to play, with their respective options. Corresponds to the motion sequence settings: https://motion.dev/docs/animate#timeline-sequences
      * @param options Additional options for playing the track.
+     * @returns The `motion` timeline controls for the sequence (without `pause`, since pausing is not supported).
      * @example
      * ```ts
-     * spine.playTrack([
+     * spine.playSequence([
      *     ["walk", { loop: true, duration: 2 }],
      *     ["jump", { delay: 0.5 }],
      * ], { loop: true, completeOnContinue: true });
@@ -341,6 +363,12 @@ export default class Spine
         };
         return timeline;
     }
+    /**
+     * Builds and starts the `motion` timeline backing {@link playSequence}: each sequence entry becomes a
+     * timeline segment whose `onPlay` calls {@link addAnimation} for the corresponding animation, using
+     * the animation's own duration when no explicit `duration` is given. Entries whose animation is not
+     * found on the skeleton are skipped (with a warning).
+     */
     private setTrackSequence(
         sequence: ([string, SpineSequenceOptions] | string)[],
         options: SequenceOptions & { completeOnContinue: boolean; trackIndex: number },
@@ -381,7 +409,8 @@ export default class Spine
         return timeline(results, { ...rest });
     }
     /**
-     * Removes all animations from all tracks, leaving skeletons in their current pose.
+     * Removes all animations from all tracks, stopping any running {@link playSequence} timelines, and
+     * leaving the skeleton in its current pose.
      */
     clearTracks() {
         Object.values(this.sequenceTimelines).forEach(({ timeline }) => {
@@ -391,8 +420,9 @@ export default class Spine
         this.state.clearTracks();
     }
     /**
-     * Removes a track by index, leaving skeletons in their current pose.
-     * @param trackIndex The track index to clear. Removes all animations from the track, leaving skeletons in their current pose.
+     * Removes all animations from a single track, stopping its running {@link playSequence} timeline (if
+     * any), and leaving the skeleton in its current pose.
+     * @param trackIndex The track index to clear.
      */
     clearTrack(trackIndex: number) {
         this.sequenceTimelines[trackIndex]?.timeline.stop();
@@ -400,8 +430,9 @@ export default class Spine
         this.state.clearTrack(trackIndex);
     }
     /**
-     * Set the skin of the spine sprite.
-     * @param skinName The name of the skin.
+     * Sets the active skin on the skeleton and refreshes its pose slots accordingly. Failures (e.g. an
+     * unknown skin name) are logged via {@link logger.error} rather than thrown.
+     * @param skinName The name of the skin to set.
      */
     setSkin(skinName: string) {
         try {
@@ -413,6 +444,10 @@ export default class Spine
     }
 
     /** ListenerExtension */
+    /**
+     * The registered event handlers for this component, used by {@link setMemory}/{@link memory} to
+     * persist and restore listeners added via {@link on}.
+     */
     readonly onEventsHandlers: OnEventsHandlers = {};
     override on<
         T extends
@@ -613,6 +648,11 @@ export default class Spine
             this.position.set(value.x, value.y);
         }
     }
+    /**
+     * Re-applies whichever positioning mode is active ({@link align} or {@link percentagePosition}) onto
+     * the underlying pixel {@link x}/{@link y}, e.g. after the skeleton's size, scale or angle changes.
+     * No-op when neither mode is set (plain pixel positioning).
+     */
     protected reloadPosition() {
         if (this._align) {
             const superPivot = getSuperPivot(this);
@@ -675,6 +715,10 @@ export default class Spine
         super.y = value;
     }
 }
+/**
+ * Registers {@link Spine} under {@link CANVAS_SPINE_ID} so it can be restored from a {@link SpineMemory}
+ * snapshot: loads the skeleton/atlas assets, constructs the component, then applies the rest of the memory.
+ */
 RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
     name: CANVAS_SPINE_ID,
     getInstance: async (canvasClass, memory) => {
@@ -689,6 +733,12 @@ RegisteredCanvasComponents.add<SpineMemory, typeof Spine>(Spine, {
     },
 });
 
+/**
+ * Applies a {@link SpineMemory} snapshot onto an existing {@link Spine} instance: clears all animation
+ * tracks, restores the skin, delegates the common container/anchor/position properties to
+ * {@link setMemoryContainer}, then replays the sequence timelines and remaining animation tracks.
+ * @see {@link Spine.setMemory}
+ */
 async function setMemorySpine(element: Spine, param: SpineMemory) {
     const memory = analizePositionsExtensionProps(param);
     element.state.clearTracks();
