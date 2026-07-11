@@ -72,19 +72,17 @@ export default class Spine
             ...containerOptions
         } = options;
         const { anchor, align, percentagePosition, ...restOptions } =
-            analizePositionsExtensionProps(containerOptions as any);
+            analizePositionsExtensionProps(containerOptions) || {};
 
-        const spineCore = CoreSpine.from({
+        const spineOptions = CoreSpine.createOptions({
             skeleton: skeletonOpt,
             atlas,
             darkTint,
             autoUpdate,
             scale,
         });
-        const { skeleton, parent, ...props } = spineCore;
         super({
-            skeletonData: skeleton.data,
-            ...props,
+            ...spineOptions,
             ...restOptions,
         });
         this.skeletonAlias = options.skeleton;
