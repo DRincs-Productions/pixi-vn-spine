@@ -66,6 +66,7 @@ export default defineConfig([
         // don't need to install it themselves.
         external: [
             "@drincs/pixi-vn",
+            "@drincs/pixi-vn/canvas",
             "@drincs/pixi-vn-spine",
             "@drincs/pixi-vn-ink",
             "zod",

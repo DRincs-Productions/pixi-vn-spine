@@ -1,8 +1,16 @@
 import { logger } from "@/utils/log-utility";
 import { spineOptionsSchema } from "@/ink/spine-options-schema.generated";
 import { Assets, canvas } from "@drincs/pixi-vn";
+import {
+    moveOut,
+    pushOut,
+    removeWithDissolve,
+    removeWithFade,
+    zoomOut,
+} from "@drincs/pixi-vn/canvas";
 import { HashtagCommands } from "@drincs/pixi-vn-ink";
 import {
+    containerMemorySchema,
     ENTRANCE_TRANSITION_TYPES,
     type EntranceTransitionType,
     entranceTransitionKeySchemas,
@@ -11,6 +19,38 @@ import {
 import type { SpineOptions } from "@drincs/pixi-vn-spine";
 import { Spine } from "@drincs/pixi-vn-spine";
 import { z } from "zod";
+
+/**
+ * The transition types used to remove a canvas element **out** (as opposed to
+ * `dissolve`/`fade`/`movein`/`zoomin`/`pushin`, used only to bring one in). Mirrors
+ * `@drincs/pixi-vn-json/actions`' own `ENTRANCE_TRANSITION_TYPES`, but for `# remove spine`.
+ */
+const EXIT_TRANSITION_TYPES = ["dissolve", "fade", "moveout", "zoomout", "pushout"] as const;
+type ExitTransitionType = (typeof EXIT_TRANSITION_TYPES)[number];
+
+/**
+ * Runs an exit transition on a canvas element, mirroring `@drincs/pixi-vn-json/actions`'
+ * `executeEntranceTransition` but for removal — `@drincs/pixi-vn-json` doesn't (yet) expose an
+ * equivalent helper for the exit direction, so this dispatches straight to `@drincs/pixi-vn/canvas`.
+ */
+function executeExitTransition(
+    alias: string,
+    transitionType: ExitTransitionType,
+    props?: object,
+): string[] | undefined {
+    switch (transitionType) {
+        case "dissolve":
+            return removeWithDissolve(alias, props);
+        case "fade":
+            return removeWithFade(alias, props);
+        case "moveout":
+            return moveOut(alias, props);
+        case "zoomout":
+            return zoomOut(alias, props);
+        case "pushout":
+            return pushOut(alias, props);
+    }
+}
 
 /**
  * Options for {@link createSpineHandler}.
@@ -163,6 +203,109 @@ export function createSpineHandler(options: SpineHandlerOptions = {}): void {
                 with: {},
                 ...entranceTransitionKeySchemas,
                 3: showSpinePropsSchema,
+            },
+        },
+    );
+
+    function runEditSpine(
+        alias: string,
+        tail: string[],
+        convertListStringToObj: (listParm: string[]) => object,
+    ): boolean {
+        const spine = canvas.find<Spine>(alias);
+        if (!spine) {
+            logger.error(`"edit spine ${alias}": no Spine canvas element found with this alias`);
+            return true;
+        }
+        if (tail.length === 0) {
+            return true;
+        }
+        try {
+            const props = convertListStringToObj(tail);
+            Object.assign(spine, props);
+        } catch (e) {
+            logger.error(`Failed to parse props for "edit spine ${alias}"`, e);
+        }
+        return true;
+    }
+
+    HashtagCommands.add(
+        (list, _props, convertListStringToObj) =>
+            runEditSpine(list[2], list.slice(3), convertListStringToObj),
+        {
+            name: "Edit spine",
+            description: `Edits the properties of a Spine canvas element identified by its alias, using key/value properties (e.g. alpha, tint, x, y, visible, xAlign, ...).
+
+\`\`\`ink
+# edit spine <alias> [<key> <value> …]
+\`\`\``,
+            validation: z
+                .tuple([z.literal("edit"), z.literal("spine"), z.string()])
+                .rest(z.string()),
+            keySchemas: {
+                3: containerMemorySchema,
+            },
+        },
+    );
+
+    function runRemoveSpine(
+        alias: string,
+        tail: string[],
+        convertListStringToObj: (listParm: string[]) => object,
+    ): boolean {
+        const spine = canvas.find<Spine>(alias);
+        if (!spine) {
+            logger.error(`"remove spine ${alias}": no Spine canvas element found with this alias`);
+            return true;
+        }
+
+        let transitionType: ExitTransitionType | undefined;
+        let transitionPropsList: string[] = [];
+        const withIndex = tail.indexOf("with");
+        if (withIndex !== -1 && tail.length > withIndex + 1) {
+            const rawType = tail[withIndex + 1];
+            if ((EXIT_TRANSITION_TYPES as readonly string[]).includes(rawType)) {
+                transitionType = rawType as ExitTransitionType;
+                transitionPropsList = tail.slice(withIndex + 2);
+            }
+        }
+
+        if (transitionType) {
+            let transitionProps: object | undefined;
+            if (transitionPropsList.length > 0) {
+                try {
+                    transitionProps = convertListStringToObj(transitionPropsList);
+                } catch (e) {
+                    logger.error(`Failed to parse transition props for "remove spine ${alias}"`, e);
+                }
+            }
+            executeExitTransition(alias, transitionType, transitionProps);
+        } else {
+            canvas.remove(alias);
+        }
+        return true;
+    }
+
+    HashtagCommands.add(
+        (list, _props, convertListStringToObj) =>
+            runRemoveSpine(list[2], list.slice(3), convertListStringToObj),
+        {
+            name: "Remove spine",
+            description: `Removes a Spine canvas element with an optional exit transition.
+
+\`\`\`ink
+# remove spine <alias> [with dissolve|fade|movein|moveout|zoomin|zoomout|pushin|pushout [<key> <value> …]]
+\`\`\``,
+            validation: z
+                .tuple([z.literal("remove"), z.literal("spine"), z.string()])
+                .rest(z.string()),
+            keySchemas: {
+                with: {},
+                dissolve: entranceTransitionKeySchemas.dissolve,
+                fade: entranceTransitionKeySchemas.fade,
+                moveout: entranceTransitionKeySchemas.movein,
+                zoomout: entranceTransitionKeySchemas.zoomin,
+                pushout: entranceTransitionKeySchemas.pushin,
             },
         },
     );
