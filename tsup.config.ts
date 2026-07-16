@@ -59,11 +59,15 @@ export default defineConfig([
         // stay external too, so `Spine` here is the same class the rest of the app imports —
         // otherwise the `RegisteredCanvasComponents.add(Spine, ...)` side effect in the main
         // entry and any `instanceof Spine` check would see two distinct classes.
+        // `@drincs/pixi-vn-json` (and the `/core`, `/translator` submodules its `/actions`
+        // subpath itself pulls in) is deliberately NOT external: it's only a devDependency of
+        // this package, used solely for `executeEntranceTransition`/`entranceTransitionKeySchemas`,
+        // so it gets bundled straight into `dist/ink.*` — consumers of `@drincs/pixi-vn-spine/ink`
+        // don't need to install it themselves.
         external: [
             "@drincs/pixi-vn",
             "@drincs/pixi-vn-spine",
             "@drincs/pixi-vn-ink",
-            "@drincs/pixi-vn-json/actions",
             "zod",
             "pixi.js",
         ],

@@ -20,7 +20,8 @@
     "format": "biome format --write",
     "test": "vitest",
     "docs": "typedoc",
-    "playground": "npm run build && npm run dev --workspace=playground"
+    "playground": "npm run build && npm run dev --workspace=playground",
+    "generate-spine-options-schema": "node scripts/generate-spine-options-schema.mjs && biome format --write src/ink/spine-options-schema.generated.ts"
   },
   "exports": {
     ".": {
@@ -82,16 +83,12 @@
   "peerDependencies": {
     "@drincs/pixi-vn": ">=1.5.13",
     "@drincs/pixi-vn-ink": ">=1.1.6",
-    "@drincs/pixi-vn-json": ">=1.13.16",
     "@esotericsoftware/spine-core": "^4.3.9",
     "@esotericsoftware/spine-pixi-v8": "^4.3.9",
     "zod": ">=4.4.0"
   },
   "peerDependenciesMeta": {
     "@drincs/pixi-vn-ink": {
-      "optional": true
-    },
-    "@drincs/pixi-vn-json": {
       "optional": true
     },
     "zod": {
