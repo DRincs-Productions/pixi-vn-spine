@@ -63,7 +63,7 @@ export default class Spine
         AdditionalPositionsExtension
 {
     /**
-     * @param options Options used to configure the Spine skeleton (skeleton/atlas aliases, scale, dark tint, auto update, initial skin)
+     * @param options Options used to configure the Spine skeleton (skeleton/atlas aliases, scale, dark tint, auto update, initial skin, initial animation)
      * plus the standard {@link CanvasBaseItem} container options (anchor, align, percentagePosition, etc.).
      */
     constructor(options: SpineOptions) {
@@ -74,6 +74,7 @@ export default class Spine
             autoUpdate,
             scale,
             skin,
+            animation,
             ...containerOptions
         } = options;
         const { anchor, align, percentagePosition, ...restOptions } =
@@ -96,6 +97,9 @@ export default class Spine
 
         if (skin) {
             this.setSkin(skin);
+        }
+        if (animation) {
+            this.addAnimation(animation);
         }
         if (anchor) {
             this.anchor = anchor;

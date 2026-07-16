@@ -103,6 +103,15 @@ describe("createSpineHandler", () => {
         expect(propsSchema?.required).toContain("atlas");
         expect(propsSchema?.required).toContain("skeleton");
     });
+
+    test("the props position schema also describes the optional 'animation' prop", () => {
+        createSpineHandler();
+        const opts = HashtagCommands.info().find((o) => o.name === "Show spine");
+        const propsSchema = (
+            opts?.keySchemas as Record<string, { properties?: Record<string, unknown> }>
+        )?.[3];
+        expect(propsSchema?.properties?.animation).toEqual({ type: "string" });
+    });
 });
 
 describe("createSpineHandler: running '# show spine' through HashtagCommands.run", () => {
@@ -131,7 +140,7 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
 
     test("forwards extra key/value props to the Spine constructor", async () => {
         await HashtagCommands.run(
-            "show spine hero skeleton heroSkeleton atlas heroAtlas xAlign 0.5 yAlign 1 skin alt",
+            "show spine hero skeleton heroSkeleton atlas heroAtlas xAlign 0.5 yAlign 1 skin alt animation walk",
             step,
             {} as never,
         );
@@ -142,6 +151,7 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
             xAlign: 0.5,
             yAlign: 1,
             skin: "alt",
+            animation: "walk",
         });
     });
 

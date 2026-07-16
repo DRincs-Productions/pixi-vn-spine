@@ -15,6 +15,9 @@ export const spineOptionsSchema: object = {
         skin: {
             type: "string",
         },
+        animation: {
+            type: "string",
+        },
         skeleton: {
             type: "string",
         },
