@@ -295,3 +295,173 @@ describe("createSpineHandler: 'Remove spine'", () => {
         });
     });
 });
+
+function createFakeSpine() {
+    return {
+        setSkin: vi.fn(),
+        clearTrack: vi.fn(),
+        addAnimation: vi.fn(),
+        setAnimation: vi.fn(),
+    };
+}
+
+describe("createSpineHandler: 'Set skin'", () => {
+    let fakeSpine: ReturnType<typeof createFakeSpine>;
+
+    beforeEach(() => {
+        createSpineHandler();
+        fakeSpine = createFakeSpine();
+        vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
+    });
+
+    test("registers 'Set skin'", () => {
+        const names = HashtagCommands.info().map((o) => o.name);
+        expect(names).toContain("Set skin");
+    });
+
+    test("calls spine.setSkin with the given skin name", async () => {
+        await HashtagCommands.run("set skin hero goblin", step, {} as never);
+
+        expect(canvas.find).toHaveBeenCalledWith("hero");
+        expect(fakeSpine.setSkin).toHaveBeenCalledWith("goblin");
+    });
+
+    test("alias not found: logs an error instead of throwing", async () => {
+        vi.mocked(canvas.find).mockReturnValue(undefined);
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await expect(
+            HashtagCommands.run("set skin missing goblin", step, {} as never),
+        ).resolves.toBeUndefined();
+
+        expect(errorSpy).toHaveBeenCalled();
+    });
+});
+
+describe("createSpineHandler: 'Clear track'", () => {
+    let fakeSpine: ReturnType<typeof createFakeSpine>;
+
+    beforeEach(() => {
+        createSpineHandler();
+        fakeSpine = createFakeSpine();
+        vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
+    });
+
+    test("registers 'Clear track'", () => {
+        const names = HashtagCommands.info().map((o) => o.name);
+        expect(names).toContain("Clear track");
+    });
+
+    test("calls spine.clearTrack with the track index parsed as a number", async () => {
+        await HashtagCommands.run("clear track hero 0", step, {} as never);
+
+        expect(fakeSpine.clearTrack).toHaveBeenCalledWith(0);
+    });
+
+    test("invalid track index: logs an error and never calls spine.clearTrack", async () => {
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await HashtagCommands.run("clear track hero notanumber", step, {} as never);
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(fakeSpine.clearTrack).not.toHaveBeenCalled();
+    });
+
+    test("alias not found: logs an error instead of throwing", async () => {
+        vi.mocked(canvas.find).mockReturnValue(undefined);
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await HashtagCommands.run("clear track missing 0", step, {} as never);
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(fakeSpine.clearTrack).not.toHaveBeenCalled();
+    });
+});
+
+describe("createSpineHandler: 'Add animation'", () => {
+    let fakeSpine: ReturnType<typeof createFakeSpine>;
+
+    beforeEach(() => {
+        createSpineHandler();
+        fakeSpine = createFakeSpine();
+        vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
+    });
+
+    test("registers 'Add animation' with a keySchemas section for the options position", () => {
+        const opts = HashtagCommands.info().find((o) => o.name === "Add animation");
+        expect((opts?.keySchemas as Record<string, unknown> | undefined)?.[4]).toBeDefined();
+    });
+
+    test("calls spine.addAnimation with no options when none are given", async () => {
+        await HashtagCommands.run("add animation hero walk", step, {} as never);
+
+        expect(fakeSpine.addAnimation).toHaveBeenCalledWith("walk", {});
+    });
+
+    test("forwards key/value options to spine.addAnimation", async () => {
+        await HashtagCommands.run(
+            "add animation hero walk loop true trackIndex 1 delay 0.5",
+            step,
+            {} as never,
+        );
+
+        expect(fakeSpine.addAnimation).toHaveBeenCalledWith("walk", {
+            loop: true,
+            trackIndex: 1,
+            delay: 0.5,
+        });
+    });
+
+    test("alias not found: logs an error instead of throwing", async () => {
+        vi.mocked(canvas.find).mockReturnValue(undefined);
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await HashtagCommands.run("add animation missing walk", step, {} as never);
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(fakeSpine.addAnimation).not.toHaveBeenCalled();
+    });
+});
+
+describe("createSpineHandler: 'Set animation'", () => {
+    let fakeSpine: ReturnType<typeof createFakeSpine>;
+
+    beforeEach(() => {
+        createSpineHandler();
+        fakeSpine = createFakeSpine();
+        vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
+    });
+
+    test("registers 'Set animation' with a keySchemas section for the options position", () => {
+        const opts = HashtagCommands.info().find((o) => o.name === "Set animation");
+        expect((opts?.keySchemas as Record<string, unknown> | undefined)?.[4]).toBeDefined();
+    });
+
+    test("calls spine.setAnimation with a numeric trackIndex", async () => {
+        await HashtagCommands.run("set animation hero walk trackIndex 0 loop true", step, {} as never);
+
+        expect(fakeSpine.setAnimation).toHaveBeenCalledWith("walk", {
+            trackIndex: 0,
+            loop: true,
+        });
+    });
+
+    test("missing trackIndex: logs an error and never calls spine.setAnimation", async () => {
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await HashtagCommands.run("set animation hero walk loop true", step, {} as never);
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(fakeSpine.setAnimation).not.toHaveBeenCalled();
+    });
+
+    test("alias not found: logs an error instead of throwing", async () => {
+        vi.mocked(canvas.find).mockReturnValue(undefined);
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await HashtagCommands.run("set animation missing walk trackIndex 0", step, {} as never);
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(fakeSpine.setAnimation).not.toHaveBeenCalled();
+    });
+});

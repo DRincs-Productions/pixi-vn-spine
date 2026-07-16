@@ -96,6 +96,33 @@ function buildShowSpinePropsSchema(): object {
 
 const showSpinePropsSchema = buildShowSpinePropsSchema();
 
+/** Mirrors {@link Spine.addAnimation}'s own inline options type. */
+const addAnimationOptionsSchema = {
+    type: "object",
+    properties: {
+        loop: { type: "boolean" },
+        delay: { type: "number" },
+        trackIndex: { type: "number" },
+        completeOnContinue: { type: "boolean" },
+    },
+    additionalProperties: false,
+};
+
+/** Mirrors {@link Spine.setAnimation}'s own inline options type — `trackIndex` is required. */
+const setAnimationOptionsSchema = {
+    type: "object",
+    properties: {
+        trackIndex: { type: "number" },
+        loop: { type: "boolean" },
+        completeOnContinue: { type: "boolean" },
+    },
+    required: ["trackIndex"],
+    additionalProperties: false,
+};
+
+type AddAnimationOptions = Parameters<Spine["addAnimation"]>[1];
+type SetAnimationOptions = Parameters<Spine["setAnimation"]>[1];
+
 /**
  * Splits the tail (everything after `<alias>`) of a `# show spine` command into its free-form
  * construction props and an optional entrance transition.
@@ -306,6 +333,144 @@ export function createSpineHandler(options: SpineHandlerOptions = {}): void {
                 moveout: entranceTransitionKeySchemas.movein,
                 zoomout: entranceTransitionKeySchemas.zoomin,
                 pushout: entranceTransitionKeySchemas.pushin,
+            },
+        },
+    );
+
+    function findSpineOrLogError(commandLabel: string, alias: string): Spine | undefined {
+        const spine = canvas.find<Spine>(alias);
+        if (!spine) {
+            logger.error(`"${commandLabel}": no Spine canvas element found with alias "${alias}"`);
+        }
+        return spine;
+    }
+
+    HashtagCommands.add(
+        (list) => {
+            const alias = list[2];
+            const skinName = list[3];
+            const spine = findSpineOrLogError(`set skin ${alias} ${skinName}`, alias);
+            spine?.setSkin(skinName);
+            return true;
+        },
+        {
+            name: "Set skin",
+            description: `Sets the active skin on a Spine canvas element identified by its alias.
+
+\`\`\`ink
+# set skin <alias> <skinName>
+\`\`\``,
+            validation: z.tuple([z.literal("set"), z.literal("skin"), z.string(), z.string()]),
+        },
+    );
+
+    HashtagCommands.add(
+        (list) => {
+            const alias = list[2];
+            const trackIndexRaw = list[3];
+            const spine = findSpineOrLogError(`clear track ${alias} ${trackIndexRaw}`, alias);
+            if (!spine) {
+                return true;
+            }
+            const trackIndex = Number(trackIndexRaw);
+            if (!Number.isFinite(trackIndex)) {
+                logger.error(`"clear track ${alias} ${trackIndexRaw}": invalid track index`);
+                return true;
+            }
+            spine.clearTrack(trackIndex);
+            return true;
+        },
+        {
+            name: "Clear track",
+            description: `Clears a single animation track on a Spine canvas element identified by its alias, stopping any running sequence on it and leaving the skeleton in its current pose.
+
+\`\`\`ink
+# clear track <alias> <trackIndex>
+\`\`\``,
+            validation: z.tuple([z.literal("clear"), z.literal("track"), z.string(), z.string()]),
+        },
+    );
+
+    HashtagCommands.add(
+        (list, _props, convertListStringToObj) => {
+            const alias = list[2];
+            const animationName = list[3];
+            const spine = findSpineOrLogError(`add animation ${alias} ${animationName}`, alias);
+            if (!spine) {
+                return true;
+            }
+            const tail = list.slice(4);
+            let options: AddAnimationOptions = {};
+            if (tail.length > 0) {
+                try {
+                    options = convertListStringToObj(tail) as AddAnimationOptions;
+                } catch (e) {
+                    logger.error(
+                        `Failed to parse options for "add animation ${alias} ${animationName}"`,
+                        e,
+                    );
+                    return true;
+                }
+            }
+            spine.addAnimation(animationName, options);
+            return true;
+        },
+        {
+            name: "Add animation",
+            description: `Queues an animation to play after the current one on a track, on a Spine canvas element identified by its alias. Optional key/value properties: loop, delay, trackIndex, completeOnContinue.
+
+\`\`\`ink
+# add animation <alias> <animationName> [<key> <value> …]
+\`\`\``,
+            validation: z
+                .tuple([z.literal("add"), z.literal("animation"), z.string(), z.string()])
+                .rest(z.string()),
+            keySchemas: {
+                4: addAnimationOptionsSchema,
+            },
+        },
+    );
+
+    HashtagCommands.add(
+        (list, _props, convertListStringToObj) => {
+            const alias = list[2];
+            const animationName = list[3];
+            const spine = findSpineOrLogError(`set animation ${alias} ${animationName}`, alias);
+            if (!spine) {
+                return true;
+            }
+            let options: Record<string, unknown>;
+            try {
+                options = convertListStringToObj(list.slice(4)) as Record<string, unknown>;
+            } catch (e) {
+                logger.error(
+                    `Failed to parse options for "set animation ${alias} ${animationName}"`,
+                    e,
+                );
+                return true;
+            }
+            if (typeof options.trackIndex !== "number") {
+                logger.error(
+                    `"set animation ${alias} ${animationName}" requires a numeric "trackIndex" prop, e.g. "trackIndex 0"`,
+                );
+                return true;
+            }
+            spine.setAnimation(animationName, options as SetAnimationOptions);
+            return true;
+        },
+        {
+            name: "Set animation",
+            description: `Sets the current animation on a track, replacing whatever is currently playing on it, on a Spine canvas element identified by its alias. Requires a numeric "trackIndex" prop; optional: loop, completeOnContinue.
+
+\`\`\`ink
+# set animation <alias> <animationName> <key> <value> [<key> <value> …]
+# set animation hero walk trackIndex 0 loop true
+\`\`\``,
+            validation: z
+                .tuple([z.literal("set"), z.literal("animation"), z.string(), z.string()])
+                .rest(z.string()),
+            keySchemas: {
+                4: setAnimationOptionsSchema,
             },
         },
     );
