@@ -407,7 +407,7 @@ describe("createSpineHandler: 'Clear track'", () => {
     });
 });
 
-describe("createSpineHandler: 'Add animation'", () => {
+describe("createSpineHandler: 'Animate spine'", () => {
     let fakeSpine: ReturnType<typeof createFakeSpine>;
 
     beforeEach(() => {
@@ -416,20 +416,20 @@ describe("createSpineHandler: 'Add animation'", () => {
         vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
     });
 
-    test("registers 'Add animation' with a keySchemas section for the options position", () => {
-        const opts = HashtagCommands.info().find((o) => o.name === "Add animation");
-        expect((opts?.keySchemas as Record<string, unknown> | undefined)?.[4]).toBeDefined();
+    test("registers 'Animate spine' with a keySchemas section for the options position", () => {
+        const opts = HashtagCommands.info().find((o) => o.name === "Animate spine");
+        expect((opts?.keySchemas as Record<string, unknown> | undefined)?.[5]).toBeDefined();
     });
 
     test("calls spine.addAnimation with no options when none are given", async () => {
-        await HashtagCommands.run("add animation hero walk", step, {} as never);
+        await HashtagCommands.run("animate spine hero with walk", step, {} as never);
 
         expect(fakeSpine.addAnimation).toHaveBeenCalledWith("walk", {});
     });
 
     test("forwards key/value options to spine.addAnimation", async () => {
         await HashtagCommands.run(
-            "add animation hero walk loop true trackIndex 1 delay 0.5",
+            "animate spine hero with walk loop true trackIndex 1 delay 0.5",
             step,
             {} as never,
         );
@@ -445,52 +445,10 @@ describe("createSpineHandler: 'Add animation'", () => {
         vi.mocked(canvas.find).mockReturnValue(undefined);
         const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
-        await HashtagCommands.run("add animation missing walk", step, {} as never);
+        await HashtagCommands.run("animate spine missing with walk", step, {} as never);
 
         expect(errorSpy).toHaveBeenCalled();
         expect(fakeSpine.addAnimation).not.toHaveBeenCalled();
     });
 });
 
-describe("createSpineHandler: 'Set animation'", () => {
-    let fakeSpine: ReturnType<typeof createFakeSpine>;
-
-    beforeEach(() => {
-        createSpineHandler();
-        fakeSpine = createFakeSpine();
-        vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
-    });
-
-    test("registers 'Set animation' with a keySchemas section for the options position", () => {
-        const opts = HashtagCommands.info().find((o) => o.name === "Set animation");
-        expect((opts?.keySchemas as Record<string, unknown> | undefined)?.[4]).toBeDefined();
-    });
-
-    test("calls spine.setAnimation with a numeric trackIndex", async () => {
-        await HashtagCommands.run("set animation hero walk trackIndex 0 loop true", step, {} as never);
-
-        expect(fakeSpine.setAnimation).toHaveBeenCalledWith("walk", {
-            trackIndex: 0,
-            loop: true,
-        });
-    });
-
-    test("missing trackIndex: logs an error and never calls spine.setAnimation", async () => {
-        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
-
-        await HashtagCommands.run("set animation hero walk loop true", step, {} as never);
-
-        expect(errorSpy).toHaveBeenCalled();
-        expect(fakeSpine.setAnimation).not.toHaveBeenCalled();
-    });
-
-    test("alias not found: logs an error instead of throwing", async () => {
-        vi.mocked(canvas.find).mockReturnValue(undefined);
-        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
-
-        await HashtagCommands.run("set animation missing walk trackIndex 0", step, {} as never);
-
-        expect(errorSpy).toHaveBeenCalled();
-        expect(fakeSpine.setAnimation).not.toHaveBeenCalled();
-    });
-});
