@@ -41,6 +41,14 @@ Game.init(body, {
       alias: "spineboyAtlas",
       src: "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/spineboy/export/spineboy-pma.atlas",
     },
+    {
+      alias: "goblinsSkeleton",
+      src: "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/goblins/export/goblins-pro.skel",
+    },
+    {
+      alias: "goblinsAtlas",
+      src: "https://raw.githubusercontent.com/EsotericSoftware/spine-runtimes/4.3/examples/goblins/export/goblins-pma.atlas",
+    },
   ]).then(() => {
     reactRoot.render(<App />);
   });

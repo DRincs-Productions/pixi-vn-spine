@@ -3,4 +3,10 @@ import type { SpineFromOptions } from "@drincs/pixi-vn-spine/core";
 
 export default interface SpineOptions
     extends Omit<SpineFromOptions, "boundsProvider" | "parent">,
-        Omit<ContainerOptions, "scale"> {}
+        Omit<ContainerOptions, "scale"> {
+    /**
+     * The name of the skin to set on the skeleton as soon as it is created, equivalent to calling
+     * {@link Spine.setSkin} right after construction.
+     */
+    skin?: string;
+}

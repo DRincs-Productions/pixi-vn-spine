@@ -67,7 +67,7 @@ export default interface SpineMemory
         ListenerExtensionMemory,
         AdditionalPositionsExtensionProps,
         AnchorExtensionProps,
-        Omit<SpineOptions, "scale"> {
+        Omit<SpineOptions, "scale" | "skin"> {
     state: { tracks: (TrackMemory | null)[] };
     currentSkin?: string;
     sequenceTimelines: {

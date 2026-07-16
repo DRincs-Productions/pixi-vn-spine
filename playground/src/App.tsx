@@ -1,8 +1,8 @@
 import { canvas, Game, narration, stepHistory } from "@drincs/pixi-vn";
 import { useEffect, useState } from "react";
-import { baseLabel, motionLabel, sequenceLabel } from "./labels";
+import { baseLabel, motionLabel, sequenceLabel, setSkinLabel } from "./labels";
 
-const LABELS = [baseLabel, motionLabel, sequenceLabel];
+const LABELS = [baseLabel, motionLabel, sequenceLabel, setSkinLabel];
 
 export default function App() {
   const [running, setRunning] = useState(false);

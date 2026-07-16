@@ -41,6 +41,28 @@ export const motionLabel = newLabel("motion", [
     () => {}
 ]);
 
+export const setSkinLabel = newLabel("set-skin", [
+    async () => {
+        await Assets.load(["goblinsSkeleton", "goblinsAtlas"]);
+        const spine = new Spine({
+            atlas: "goblinsAtlas",
+            skeleton: "goblinsSkeleton",
+            skin: "goblin",
+            xAlign: 0.5,
+            yAlign: 1,
+        });
+        spine.addAnimation("walk", { loop: true });
+        canvas.add("spine", spine);
+    },
+    () => {
+        canvas.find<Spine>("spine")?.setSkin("goblingirl");
+    },
+    () => {
+        canvas.find<Spine>("spine")?.setSkin("goblin");
+    },
+    () => {},
+]);
+
 export const sequenceLabel = newLabel("sequence", [
     async () => {
         await Assets.load(["spineboySkeleton", "spineboyAtlas"]);
