@@ -99,7 +99,7 @@ export default class Spine
             this.setSkin(skin);
         }
         if (animation) {
-            this.addAnimation(animation);
+            this.addAnimation(animation, { loop: true });
         }
         if (anchor) {
             this.anchor = anchor;
