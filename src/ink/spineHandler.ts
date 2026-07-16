@@ -313,27 +313,23 @@ export function createSpineHandler(): void {
     HashtagCommands.add(
         (list) => {
             const alias = list[2];
-            const trackIndexRaw = list[3];
-            const spine = findSpineOrLogError(`clear track ${alias} ${trackIndexRaw}`, alias);
-            if (!spine) {
-                return true;
-            }
-            const trackIndex = Number(trackIndexRaw);
-            if (!Number.isFinite(trackIndex)) {
-                logger.error(`"clear track ${alias} ${trackIndexRaw}": invalid track index`);
-                return true;
-            }
-            spine.clearTrack(trackIndex);
+            const spine = findSpineOrLogError(`clear spine ${alias} tracks`, alias);
+            spine?.clearTracks();
             return true;
         },
         {
-            name: "Clear track",
-            description: `Clears a single animation track on a Spine canvas element identified by its alias, stopping any running sequence on it and leaving the skeleton in its current pose.
+            name: "Clear spine tracks",
+            description: `Clears every animation track on a Spine canvas element identified by its alias, stopping any running sequences and leaving the skeleton in its current pose.
 
 \`\`\`ink
-# clear track <alias> <trackIndex>
+# clear spine <alias> tracks
 \`\`\``,
-            validation: z.tuple([z.literal("clear"), z.literal("track"), z.string(), z.string()]),
+            validation: z.tuple([
+                z.literal("clear"),
+                z.literal("spine"),
+                z.string(),
+                z.literal("tracks"),
+            ]),
         },
     );
 

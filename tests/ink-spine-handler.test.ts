@@ -329,6 +329,7 @@ function createFakeSpine() {
     return {
         setSkin: vi.fn(),
         clearTrack: vi.fn(),
+        clearTracks: vi.fn(),
         addAnimation: vi.fn(),
         setAnimation: vi.fn(),
     };
@@ -367,7 +368,7 @@ describe("createSpineHandler: 'Change spine skin'", () => {
     });
 });
 
-describe("createSpineHandler: 'Clear track'", () => {
+describe("createSpineHandler: 'Clear spine tracks'", () => {
     let fakeSpine: ReturnType<typeof createFakeSpine>;
 
     beforeEach(() => {
@@ -376,34 +377,25 @@ describe("createSpineHandler: 'Clear track'", () => {
         vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
     });
 
-    test("registers 'Clear track'", () => {
+    test("registers 'Clear spine tracks'", () => {
         const names = HashtagCommands.info().map((o) => o.name);
-        expect(names).toContain("Clear track");
+        expect(names).toContain("Clear spine tracks");
     });
 
-    test("calls spine.clearTrack with the track index parsed as a number", async () => {
-        await HashtagCommands.run("clear track hero 0", step, {} as never);
+    test("calls spine.clearTracks", async () => {
+        await HashtagCommands.run("clear spine hero tracks", step, {} as never);
 
-        expect(fakeSpine.clearTrack).toHaveBeenCalledWith(0);
-    });
-
-    test("invalid track index: logs an error and never calls spine.clearTrack", async () => {
-        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
-
-        await HashtagCommands.run("clear track hero notanumber", step, {} as never);
-
-        expect(errorSpy).toHaveBeenCalled();
-        expect(fakeSpine.clearTrack).not.toHaveBeenCalled();
+        expect(fakeSpine.clearTracks).toHaveBeenCalled();
     });
 
     test("alias not found: logs an error instead of throwing", async () => {
         vi.mocked(canvas.find).mockReturnValue(undefined);
         const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
-        await HashtagCommands.run("clear track missing 0", step, {} as never);
+        await HashtagCommands.run("clear spine missing tracks", step, {} as never);
 
         expect(errorSpy).toHaveBeenCalled();
-        expect(fakeSpine.clearTrack).not.toHaveBeenCalled();
+        expect(fakeSpine.clearTracks).not.toHaveBeenCalled();
     });
 });
 
