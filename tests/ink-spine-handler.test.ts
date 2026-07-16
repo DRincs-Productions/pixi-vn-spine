@@ -76,21 +76,21 @@ describe("createSpineHandler", () => {
         expect(names).toContain("Show spine");
     });
 
-    test("validation accepts an alias-only command", () => {
+    test("validation accepts an alias with skeleton/atlas props", () => {
         createSpineHandler();
         const opts = HashtagCommands.info().find((o) => o.name === "Show spine");
         const validation = opts?.validation as { safeParse: (v: unknown) => { success: boolean } };
         expect(
-            validation.safeParse(["show", "spine", "heroSkeleton", "atlas", "heroAtlas"]).success,
+            validation.safeParse([
+                "show",
+                "spine",
+                "hero",
+                "skeleton",
+                "heroSkeleton",
+                "atlas",
+                "heroAtlas",
+            ]).success,
         ).toBe(true);
-    });
-
-    test("known asset alias ids constrain the alias position", () => {
-        createSpineHandler({ assetAliasIds: ["heroSkeleton"] });
-        const opts = HashtagCommands.info().find((o) => o.name === "Show spine");
-        const validation = opts?.validation as { safeParse: (v: unknown) => { success: boolean } };
-        expect(validation.safeParse(["show", "spine", "heroSkeleton"]).success).toBe(true);
-        expect(validation.safeParse(["show", "spine", "unknownAlias"]).success).toBe(false);
     });
 
     test("registers a keySchemas section for the props position and each entrance transition", () => {
@@ -101,7 +101,7 @@ describe("createSpineHandler", () => {
         );
         const propsSchema = (opts?.keySchemas as Record<string, { required?: string[] }>)?.[3];
         expect(propsSchema?.required).toContain("atlas");
-        expect(propsSchema?.required).not.toContain("skeleton");
+        expect(propsSchema?.required).toContain("skeleton");
     });
 });
 
@@ -112,22 +112,26 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
         vi.spyOn(canvas, "add").mockImplementation(() => undefined as never);
     });
 
-    test("alias doubles as skeleton, atlas comes from props, no transition -> canvas.add", async () => {
-        await HashtagCommands.run("show spine heroSkeleton atlas heroAtlas", step, {} as never);
+    test("alias is just the canvas key; skeleton/atlas come from props, no transition -> canvas.add", async () => {
+        await HashtagCommands.run(
+            "show spine hero skeleton heroSkeleton atlas heroAtlas",
+            step,
+            {} as never,
+        );
 
         expect(Assets.load).toHaveBeenCalledWith(["heroSkeleton", "heroAtlas"]);
         expect(Spine).toHaveBeenCalledWith({ skeleton: "heroSkeleton", atlas: "heroAtlas" });
 
         expect(canvas.add).toHaveBeenCalledTimes(1);
         const [aliasArg, spineArg] = vi.mocked(canvas.add).mock.calls[0];
-        expect(aliasArg).toBe("heroSkeleton");
+        expect(aliasArg).toBe("hero");
         expect(spineArg).toMatchObject({ skeleton: "heroSkeleton", atlas: "heroAtlas" });
         expect(executeEntranceTransition).not.toHaveBeenCalled();
     });
 
     test("forwards extra key/value props to the Spine constructor", async () => {
         await HashtagCommands.run(
-            "show spine heroSkeleton atlas heroAtlas xAlign 0.5 yAlign 1 skin alt",
+            "show spine hero skeleton heroSkeleton atlas heroAtlas xAlign 0.5 yAlign 1 skin alt",
             step,
             {} as never,
         );
@@ -143,7 +147,7 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
 
     test("with a supported entrance transition: executeEntranceTransition runs instead of canvas.add", async () => {
         await HashtagCommands.run(
-            "show spine heroSkeleton atlas heroAtlas with dissolve duration 1",
+            "show spine hero skeleton heroSkeleton atlas heroAtlas with dissolve duration 1",
             step,
             {} as never,
         );
@@ -151,7 +155,7 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
         expect(executeEntranceTransition).toHaveBeenCalledTimes(1);
         const [alias, spineArg, type, transitionProps] = vi.mocked(executeEntranceTransition).mock
             .calls[0];
-        expect(alias).toBe("heroSkeleton");
+        expect(alias).toBe("hero");
         expect(spineArg).toMatchObject({ skeleton: "heroSkeleton", atlas: "heroAtlas" });
         expect(type).toBe("dissolve");
         expect(transitionProps).toEqual({ duration: 1 });
@@ -160,7 +164,7 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
 
     test("an unsupported (exit-only) transition type falls back to a plain canvas.add", async () => {
         await HashtagCommands.run(
-            "show spine heroSkeleton atlas heroAtlas with moveout duration 1",
+            "show spine hero skeleton heroSkeleton atlas heroAtlas with moveout duration 1",
             step,
             {} as never,
         );
@@ -172,7 +176,22 @@ describe("createSpineHandler: running '# show spine' through HashtagCommands.run
     test("missing atlas prop: logs an error and never loads assets or constructs a Spine", async () => {
         const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
-        await HashtagCommands.run("show spine heroSkeleton xAlign 0.5", step, {} as never);
+        await HashtagCommands.run(
+            "show spine hero skeleton heroSkeleton xAlign 0.5",
+            step,
+            {} as never,
+        );
+
+        expect(errorSpy).toHaveBeenCalled();
+        expect(Assets.load).not.toHaveBeenCalled();
+        expect(Spine).not.toHaveBeenCalled();
+        expect(canvas.add).not.toHaveBeenCalled();
+    });
+
+    test("missing skeleton prop: logs an error and never loads assets or constructs a Spine", async () => {
+        const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
+
+        await HashtagCommands.run("show spine hero atlas heroAtlas", step, {} as never);
 
         expect(errorSpy).toHaveBeenCalled();
         expect(Assets.load).not.toHaveBeenCalled();
