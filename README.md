@@ -39,3 +39,17 @@ spine.setAnimation(0, "idle", true);
 
 canvas.add("spine", spine);
 ```
+
+## Important: register the component in your main file
+
+When this package is imported, it registers `Spine` with Pixi’VN's `RegisteredCanvasComponents`, which is what allows the canvas to restore a `Spine` instance from a serialized save (e.g. `currentSkin`, animation tracks, etc.). This registration is a side effect that runs the first time the module is evaluated, not when `Spine` is actually used.
+
+In simple setups this isn't noticeable, because importing `Spine` to create an instance also triggers the registration. But in more complex projects with asynchronous/lazy loading (code-split routes, dynamically imported labels, a save loaded before any scene that uses `Spine` has been imported, etc.), the registration might not have happened yet when Pixi’VN needs to deserialize a save containing a `Spine` component — restoring it will then fail because `"Spine"` isn't registered.
+
+To avoid this, import the package once, for its side effect only, directly in your app's main/entry file, before anything else runs:
+
+```ts
+import "@drincs/pixi-vn-spine";
+```
+
+This guarantees the registration always happens as early as possible, regardless of when/where `Spine` is later imported and used.
