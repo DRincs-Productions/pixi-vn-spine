@@ -301,19 +301,25 @@ export function createSpineHandler(): void {
     HashtagCommands.add(
         (list) => {
             const alias = list[2];
-            const skinName = list[3];
-            const spine = findSpineOrLogError(`set skin ${alias} ${skinName}`, alias);
+            const skinName = list[4];
+            const spine = findSpineOrLogError(`change spine ${alias} skin ${skinName}`, alias);
             spine?.setSkin(skinName);
             return true;
         },
         {
-            name: "Set skin",
+            name: "Change spine skin",
             description: `Sets the active skin on a Spine canvas element identified by its alias.
 
 \`\`\`ink
-# set skin <alias> <skinName>
+# change spine <alias> skin <skinName>
 \`\`\``,
-            validation: z.tuple([z.literal("set"), z.literal("skin"), z.string(), z.string()]),
+            validation: z.tuple([
+                z.literal("change"),
+                z.literal("spine"),
+                z.string(),
+                z.literal("skin"),
+                z.string(),
+            ]),
         },
     );
 

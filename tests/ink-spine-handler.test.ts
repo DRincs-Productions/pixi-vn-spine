@@ -334,7 +334,7 @@ function createFakeSpine() {
     };
 }
 
-describe("createSpineHandler: 'Set skin'", () => {
+describe("createSpineHandler: 'Change spine skin'", () => {
     let fakeSpine: ReturnType<typeof createFakeSpine>;
 
     beforeEach(() => {
@@ -343,13 +343,13 @@ describe("createSpineHandler: 'Set skin'", () => {
         vi.spyOn(canvas, "find").mockImplementation(() => fakeSpine as never);
     });
 
-    test("registers 'Set skin'", () => {
+    test("registers 'Change spine skin'", () => {
         const names = HashtagCommands.info().map((o) => o.name);
-        expect(names).toContain("Set skin");
+        expect(names).toContain("Change spine skin");
     });
 
     test("calls spine.setSkin with the given skin name", async () => {
-        await HashtagCommands.run("set skin hero goblin", step, {} as never);
+        await HashtagCommands.run("change spine hero skin goblin", step, {} as never);
 
         expect(canvas.find).toHaveBeenCalledWith("hero");
         expect(fakeSpine.setSkin).toHaveBeenCalledWith("goblin");
@@ -360,7 +360,7 @@ describe("createSpineHandler: 'Set skin'", () => {
         const errorSpy = vi.spyOn(logger, "error").mockImplementation(() => {});
 
         await expect(
-            HashtagCommands.run("set skin missing goblin", step, {} as never),
+            HashtagCommands.run("change spine missing skin goblin", step, {} as never),
         ).resolves.toBeUndefined();
 
         expect(errorSpy).toHaveBeenCalled();

@@ -50,8 +50,8 @@ export const setSkinLabel = newLabel("set-skin", [
             skin: "goblin",
             xAlign: 0.5,
             yAlign: 1,
+            animation: "walk",
         });
-        spine.addAnimation("walk", { loop: true });
         canvas.add("spine", spine);
     },
     () => {
@@ -60,7 +60,6 @@ export const setSkinLabel = newLabel("set-skin", [
     () => {
         canvas.find<Spine>("spine")?.setSkin("goblin");
     },
-    () => {},
 ]);
 
 export const sequenceLabel = newLabel("sequence", [
