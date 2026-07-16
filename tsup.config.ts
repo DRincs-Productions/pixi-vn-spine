@@ -40,4 +40,37 @@ export default defineConfig([
             };
         },
     },
+    {
+        target: "es2020",
+        entry: {
+            ink: "src/ink/index.ts",
+        },
+        format: ["cjs", "esm"],
+        dts: true,
+        treeshake: true,
+        clean: false,
+        minify: true,
+        bundle: true,
+        skipNodeModulesBundle: false,
+        // `zod` must stay external: bundling it here would create a second `ZodType` class
+        // distinct from the one `@drincs/pixi-vn-ink` uses for its `instanceof ZodType`
+        // validation checks, silently breaking every hashtag command registered via
+        // `createSpineHandler` (they'd always report as invalid). `@drincs/pixi-vn-spine` must
+        // stay external too, so `Spine` here is the same class the rest of the app imports —
+        // otherwise the `RegisteredCanvasComponents.add(Spine, ...)` side effect in the main
+        // entry and any `instanceof Spine` check would see two distinct classes.
+        external: [
+            "@drincs/pixi-vn",
+            "@drincs/pixi-vn-spine",
+            "@drincs/pixi-vn-ink",
+            "@drincs/pixi-vn-json/actions",
+            "zod",
+            "pixi.js",
+        ],
+        outExtension({ format }) {
+            return {
+                js: format === "esm" ? ".mjs" : ".cjs",
+            };
+        },
+    },
 ]);
