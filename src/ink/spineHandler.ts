@@ -287,24 +287,25 @@ export function createSpineHandler(): void {
 
     HashtagCommands.add(
         (list) => {
-            const alias = list[2];
-            const skinName = list[4];
-            const spine = findSpineOrLogError(`change spine ${alias} skin ${skinName}`, alias);
+            const skinName = list[2];
+            const alias = list[5];
+            const spine = findSpineOrLogError(`change skin ${skinName} on spine ${alias}`, alias);
             spine?.setSkin(skinName);
             return true;
         },
         {
-            name: "Change spine skin",
+            name: "Change skin on spine",
             description: `Sets the active skin on a Spine canvas element identified by its alias.
 
 \`\`\`ink
-# change spine <alias> skin <skinName>
+# change skin <skinName> on spine <alias>
 \`\`\``,
             validation: z.tuple([
                 z.literal("change"),
-                z.literal("spine"),
-                z.string(),
                 z.literal("skin"),
+                z.string(),
+                z.literal("on"),
+                z.literal("spine"),
                 z.string(),
             ]),
         },
@@ -312,32 +313,33 @@ export function createSpineHandler(): void {
 
     HashtagCommands.add(
         (list) => {
-            const alias = list[2];
-            const spine = findSpineOrLogError(`clear spine ${alias} tracks`, alias);
+            const alias = list[4];
+            const spine = findSpineOrLogError(`clear tracks on spine ${alias}`, alias);
             spine?.clearTracks();
             return true;
         },
         {
-            name: "Clear spine tracks",
+            name: "Clear tracks on spine",
             description: `Clears every animation track on a Spine canvas element identified by its alias, stopping any running sequences and leaving the skeleton in its current pose.
 
 \`\`\`ink
-# clear spine <alias> tracks
+# clear tracks on spine <alias>
 \`\`\``,
             validation: z.tuple([
                 z.literal("clear"),
+                z.literal("tracks"),
+                z.literal("on"),
                 z.literal("spine"),
                 z.string(),
-                z.literal("tracks"),
             ]),
         },
     );
 
     HashtagCommands.add(
         (list, _props, convertListStringToObj) => {
-            const alias = list[2];
-            const animationName = list[4];
-            const spine = findSpineOrLogError(`animate spine ${alias} with ${animationName}`, alias);
+            const animationName = list[1];
+            const alias = list[4];
+            const spine = findSpineOrLogError(`play ${animationName} on spine ${alias}`, alias);
             if (!spine) {
                 return true;
             }
@@ -348,7 +350,7 @@ export function createSpineHandler(): void {
                     options = convertListStringToObj(tail) as AddAnimationOptions;
                 } catch (e) {
                     logger.error(
-                        `Failed to parse options for "animate spine ${alias} with ${animationName}"`,
+                        `Failed to parse options for "play ${animationName} on spine ${alias}"`,
                         e,
                     );
                     return true;
@@ -358,19 +360,19 @@ export function createSpineHandler(): void {
             return true;
         },
         {
-            name: "Animate spine",
+            name: "Play animation on spine",
             description: `Queues an animation to play after the current one on a track, on a Spine canvas element identified by its alias. Optional key/value properties: loop, delay, trackIndex, completeOnContinue.
 
 \`\`\`ink
-# animate spine <alias> with <animationName> [<key> <value> …]
-# animate spine hero with walk trackIndex 0 loop true
+# play <animationName> on spine <alias> [<key> <value> …]
+# play walk on spine hero trackIndex 0 loop true
 \`\`\``,
             validation: z
                 .tuple([
-                    z.literal("animate"),
-                    z.literal("spine"),
+                    z.literal("play"),
                     z.string(),
-                    z.literal("with"),
+                    z.literal("on"),
+                    z.literal("spine"),
                     z.string(),
                 ])
                 .rest(z.string()),
