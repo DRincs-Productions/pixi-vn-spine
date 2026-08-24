@@ -62,12 +62,12 @@
   "bugs": {
     "url": "https://github.com/DRincs-Productions/pixi-vn-spine/issues"
   },
-  "homepage": "https://pixi-vn.web.app/start/canvas-spine2d",
+  "homepage": "https://pixi-vn.com/start/canvas-spine2d",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
-    "@drincs/pixi-vn-ink": "^1.1.6",
-    "@drincs/pixi-vn-json": "^1.13.17",
+    "@drincs/pixi-vn-ink": "^1.2.0",
+    "@drincs/pixi-vn-json": "^1.14.0",
     "jsdom": "^29.0.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.1",
