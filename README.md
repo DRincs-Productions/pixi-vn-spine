@@ -53,3 +53,34 @@ import "@drincs/pixi-vn-spine";
 ```
 
 This guarantees the registration always happens as early as possible, regardless of when/where `Spine` is later imported and used.
+
+## Agent Skills
+
+Pixi’VN Spine ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants how to correctly use the Spine 2D integration.
+
+> In LM Studio Bionic, ask the agent to install skills from `https://github.com/DRincs-Productions/pixi-vn-spine`, or add the skill files in **Settings → Skills**. To reuse skills installed for Codex or Claude Code, enable **Settings → Skills → Use skills found in other apps**.
+
+**Codex**:
+
+```npm
+npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --skill '*' --agent codex -g -y
+```
+
+**Claude Code**:
+
+```npm
+npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --skill '*' --agent claude-code -g -y
+```
+
+**Other agents**:
+
+```npm
+npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --all -y
+```
+
+Available skills:
+
+- `pixi-vn-spine` — the entry point: installation, registering the package in the main file, loading skeleton/atlas assets, the `Spine` component, skins, animations, tracks, sequences and saves
+- `pixi-vn-spine-ink` — the ink hashtag commands (`# show spine`, `# edit spine`, `# remove spine`, `# change skin … on spine`, `# play … on spine`, `# clear tracks on spine`) enabled by `createSpineHandler`
+
+These skills cover only this package. For the engine itself, also install the [Pixi’VN skills](https://github.com/DRincs-Productions/pixi-vn#agent-skills) (and the [pixi-vn-ink skills](https://github.com/DRincs-Productions/pixi-vn-ink#agent-skills) if you use ink).
