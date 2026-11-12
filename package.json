@@ -9,6 +9,9 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "workspaces": [
     "playground"
   ],
@@ -19,8 +22,12 @@
     "check": "biome check",
     "format": "biome format --write",
     "test": "vitest",
+    "test:cdn": "npm run build && node scripts/test-pencode-local.mjs",
     "docs": "typedoc",
-    "playground": "npm run build && npm run dev --workspace=playground",
+    "playground:install": "npm ci -w playground",
+    "playground:dev": "npm run build && npm run dev -w playground",
+    "playground:preview": "npm run build && npm run build -w playground && npm run preview -w playground",
+    "skills:validate": "node scripts/validate-skills.mjs",
     "generate-spine-options-schema": "node scripts/generate-spine-options-schema.mjs && biome format --write src/ink/spine-options-schema.generated.ts"
   },
   "exports": {
@@ -65,20 +72,18 @@
   "homepage": "https://pixi-vn.com/start/canvas-spine2d",
   "funding": "https://github.com/DRincs-Productions/pixi-vn?sponsor=1",
   "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
+    "@biomejs/biome": "^2.5.14",
     "@drincs/pixi-vn-ink": "^1.2.0",
     "@drincs/pixi-vn-json": "^1.14.0",
-    "jsdom": "^29.0.2",
+    "jsdom": "^27.4.0",
     "ts-node": "^10.9.2",
-    "tsup": "^8.5.1",
-    "typedoc": "^0.28.19",
-    "typedoc-plugin-markdown": "^4.12.0",
-    "typescript": "^5.9.3",
+    "tsup": "^9.0.0",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.13.1",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10",
     "vite-tsconfig-paths": "^6.1.1",
-    "zod": "^4.4.3"
-  },
-  "dependencies": {
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.5"
   },
   "peerDependencies": {
     "@drincs/pixi-vn": ">=1.5.13",
