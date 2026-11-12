@@ -3,7 +3,6 @@
     "target": "ESNext",
     "experimentalDecorators": true,
     "module": "esnext",
-    "moduleResolution": "bundler",
     "paths": {
       "@drincs/pixi-vn-spine": ["./src/index.ts"],
       "@drincs/pixi-vn-spine/core": ["./src/core/index.ts"],
@@ -17,7 +16,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"]
 }
