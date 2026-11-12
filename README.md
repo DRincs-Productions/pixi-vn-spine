@@ -82,5 +82,3 @@ Available skills:
 
 - `pixi-vn-spine` — the entry point: installation, registering the package in the main file, loading skeleton/atlas assets, the `Spine` component, skins, animations, tracks, sequences and saves
 - `pixi-vn-spine-ink` — the ink hashtag commands (`# show spine`, `# edit spine`, `# remove spine`, `# change skin … on spine`, `# play … on spine`, `# clear tracks on spine`) enabled by `createSpineHandler`
-
-These skills cover only this package. For the engine itself, also install the [Pixi’VN skills](https://github.com/DRincs-Productions/pixi-vn#agent-skills) (and the [pixi-vn-ink skills](https://github.com/DRincs-Productions/pixi-vn-ink#agent-skills) if you use ink).
