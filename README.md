@@ -1,6 +1,6 @@
 # Spine 2D integration for Pixi’VN
 
-<p align="center">
+<p align="left">
   <a href="https://www.npmjs.com/package/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/v/@drincs/pixi-vn-spine?label=version" alt="npm version"></a>
   <a href="https://www.npmjs.com/package/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img src="https://img.shields.io/npm/dm/@drincs/pixi-vn-spine" alt="npm downloads per month"></a>
   <a target="_blank" href="https://www.jsdelivr.com/package/npm/@drincs/pixi-vn-spine" rel="noopener noreferrer nofollow"><img alt="jsDelivr hits (npm)" src="https://img.shields.io/jsdelivr/npm/hm/@drincs/pixi-vn-spine?logo=jsdeliver"></a>
