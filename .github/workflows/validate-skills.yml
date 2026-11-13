@@ -72,7 +72,7 @@ jobs:
           cd "$temp_root/project"
           HOME="$temp_root/home" USERPROFILE="$temp_root/home" npx --yes skills@latest add "$GITHUB_REPOSITORY@latest" --all -y --copy
           while IFS= read -r skill_file; do
-            skill="$(sed -n 's/^name: *//p' "$GITHUB_WORKSPACE/$skill_file" | head -n 1 | tr -d '\"' | tr -d "'")"
+            skill="$(sed -n 's/^name: *//p' "$skill_file" | head -n 1 | tr -d '\"' | tr -d "'")"
             test -n "$skill"
             test -f "$temp_root/project/.agents/skills/$skill/SKILL.md"
-          done < <(find "$GITHUB_WORKSPACE/skills" -mindepth 2 -maxdepth 2 -type f -name SKILL.md -printf '%P\n')
+          done < <(find "$GITHUB_WORKSPACE/skills" -mindepth 2 -maxdepth 2 -type f -name SKILL.md -print)
