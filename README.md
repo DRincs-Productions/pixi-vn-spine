@@ -70,8 +70,6 @@ This guarantees the registration always happens as early as possible, regardless
 
 Pixi’VN Spine ships a set of [Agent Skills](https://www.skills.sh/) that teach AI coding assistants how to correctly use the Spine 2D integration.
 
-> In LM Studio Bionic, ask the agent to install skills from `https://github.com/DRincs-Productions/pixi-vn-spine`, or add the skill files in **Settings → Skills**. To reuse skills installed for Codex or Claude Code, enable **Settings → Skills → Use skills found in other apps**.
-
 **Codex**:
 
 ```npm
@@ -84,10 +82,10 @@ npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --skill '*' --agen
 npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --skill '*' --agent claude-code -g -y
 ```
 
-**Other agents**:
+**Other agents (Universal)**:
 
 ```npm
-npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --all -y
+npx skills@latest add DRincs-Productions/pixi-vn-spine@latest --skill '*' --agent universal -g -y
 ```
 
 Available skills:
