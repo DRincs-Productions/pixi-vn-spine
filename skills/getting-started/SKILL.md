@@ -24,6 +24,8 @@ For the base engine (canvas, assets, labels), use the `pixi-vn` skill set
 
 ## Installation
 
+In a project created with `create-pixi-vn`, use `npm create pixi-vn@latest add spine2d` (adds the dependency and the setup below). Otherwise install manually:
+
 ```npm
 npm install @drincs/pixi-vn-spine
 ```

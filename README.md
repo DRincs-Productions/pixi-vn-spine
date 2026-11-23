@@ -12,6 +12,20 @@
 
 The library provides Pixi’VN-friendly abstractions for using Spine animations inside visual novels, making it easier to load, manage, and display Spine content within the Pixi’VN ecosystem.
 
+## Installation
+
+In a Pixi’VN template created with `create-pixi-vn`, add the package and its setup with:
+
+```npm
+npm create pixi-vn@latest add spine2d
+```
+
+To install it manually in an existing JavaScript project:
+
+```npm
+npm install @drincs/pixi-vn-spine
+```
+
 ## Example
 
 ```ts
